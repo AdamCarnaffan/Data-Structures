@@ -40,15 +40,7 @@ int pop(llnode **x, char *return_value) {
       *x = NULL;
       return 0;
    }
-   if (((*x)->next)->next == NULL) {
-      *return_value = ((*x)->next)->value;
-      free((*x)->next);
-      (*x)->next = NULL;
-      return 0;
-   } else {
-      return pop(&((*x)->next), return_value);
-   }
-   return 0;
+   return pop(&((*x)->next), return_value);
 }
 
 int main(void) {
