@@ -12,15 +12,9 @@ int llnode_add_to_head(llnode **x, char new_value) {
    if (x == NULL) {
       return 1;
    }
-   if (*x == NULL) {
-      *x = (llnode *)malloc(sizeof(llnode));
-      (*x)->value = new_value;
-      (*x)->next = NULL;
-      return 0;
-   }
    new_head = (llnode *)malloc(sizeof(llnode));
-   new_head->next = *x;
    new_head->value = new_value;
+   new_head->next = *x;  /* if *x is NULL, than next just points to NULL */
    *x = new_head;
    return 0;
 }
@@ -34,7 +28,8 @@ int llnode_add_to_tail(llnode **x, char value) {
       (*x)->value = value;
       (*x)->next = NULL;
       return 0;
-   } else {
+   } 
+   else {
       return llnode_add_to_tail(&((*x)->next),value);
    }
 }
@@ -66,17 +61,18 @@ int llnode_print_from_tail(llnode *x) {
 }
 
 int main(void) {
-   int n = 0;
+   int counter = 0;
    char value = 0;
-   int rvalue = 0;
+   int checker = 0;
    llnode *input_list = NULL;
-   while (scanf("%c", &value) != EOF) {
-      n = n + 1;
+   while (scanf("%c", &value) != EOF) {  /* EOF is ctrl-z on windows */
+      counter += 1;
       llnode_add_to_head(&input_list, value);
    }
-   printf("INFO: you entered %d items\n", n);
-   rvalue = llnode_print_from_head(input_list);
-   if ( !(rvalue==0) ) { printf("ERR: llnode_print returned an error\n"); }
-
+   printf("INFO: you entered %d items\n", counter);
+   checker = llnode_print_from_head(input_list);
+   if ( checker != 0) { 
+      printf("ERR: llnode_print returned an error\n"); 
+   }
    return 0;
 }

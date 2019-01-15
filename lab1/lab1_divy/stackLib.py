@@ -12,6 +12,6 @@ class stack:
         self.items = self.items[0:len(self.items) - 1]
         return popped_item
 
-    def show(self):
+    def show(self):  # not needed, just here for debugging
         print(self.items)
         return True
