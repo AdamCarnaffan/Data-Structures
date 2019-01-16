@@ -6,7 +6,7 @@ class tree:
       self.store[1] = self.store[1] + [x]
       return True
    
-   def display(self):
+   def Print_DepthFirst(self):  # assignment 1
       indent_level = Stack()
       indent_level.push("")
       printer = Stack()
@@ -20,7 +20,7 @@ class tree:
             indent_level.push(indent + "   ")
       return True
 
-   def Get_LevelOrder(self):
+   def Get_LevelOrder(self):  # assignment 2
       order = []
       helper = Queue()
       helper.add(self.store)
@@ -30,9 +30,14 @@ class tree:
          for i in level[1]:
             helper.add(i.store)
       return order
+   
+   def ConvertToBinaryTree(self):  # assignment 4
+      pass
+   
 
 
-class Stack:
+
+class Stack:  # helper class for assignment 1
 
    def __init__(self):
       self.data = []
@@ -56,7 +61,7 @@ class Stack:
       return True
 
 
-class Queue:
+class Queue:  # helper class for assignment 2
 
    def __init__(self):
       self.data = []
