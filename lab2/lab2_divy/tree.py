@@ -15,10 +15,21 @@ class tree:
          popped = printer.pop()
          indent = indent_level.pop()
          print(indent + str(popped[0]))
-         for i in popped[1]:
+         for i in popped[1][::-1]:
             printer.push(i.store)
             indent_level.push(indent + "   ")
       return True
+
+   def Get_LevelOrder(self):
+      order = []
+      helper = Queue()
+      helper.add(self.store)
+      while helper.length() > 0:
+         level = helper.take()
+         order += [level[0]]
+         for i in level[1]:
+            helper.add(i.store)
+      return order
 
 
 class Stack:
@@ -37,6 +48,30 @@ class Stack:
       self.data = self.data[0:len(self.data) - 1]
       return popped
    
+   def length(self):
+      return len(self.data)
+
+   def peek(self):
+      print(self.data)
+      return True
+
+
+class Queue:
+
+   def __init__(self):
+      self.data = []
+   
+   def add(self, new_data):
+      self.data += [new_data]
+      return True
+   
+   def take(self):
+      if self.data == []:
+         return False
+      first = self.data[0]
+      self.data = self.data[1:len(self.data )]
+      return first
+
    def length(self):
       return len(self.data)
 
