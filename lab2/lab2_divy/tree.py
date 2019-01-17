@@ -1,4 +1,8 @@
+from binary_tree import *
+
+
 class tree:
+
    def __init__(self, x):
       self.store = [x, []]
 
@@ -7,17 +11,16 @@ class tree:
       return True
    
    def Print_DepthFirst(self):  # assignment 1
-      indent_level = Stack()
-      indent_level.push("")
       printer = Stack()
       printer.push(self.store)
+      printer.push("")
       while printer.length() > 0:
          popped = printer.pop()
-         indent = indent_level.pop()
+         indent = printer.pop()
          print(indent + str(popped[0]))
          for i in popped[1][::-1]:
             printer.push(i.store)
-            indent_level.push(indent + "   ")
+            printer.push(indent + "   ")
       return True
 
    def Get_LevelOrder(self):  # assignment 2
@@ -32,10 +35,8 @@ class tree:
       return order
    
    def ConvertToBinaryTree(self):  # assignment 4
-      pass
+      return True
    
-
-
 
 class Stack:  # helper class for assignment 1
 
@@ -61,7 +62,7 @@ class Stack:  # helper class for assignment 1
       return True
 
 
-class Queue:  # helper class for assignment 2
+class Queue:  # helper class for assignment 2 and 3
 
    def __init__(self):
       self.data = []

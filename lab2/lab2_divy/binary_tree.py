@@ -1,3 +1,6 @@
+from tree import *
+
+
 class binary_tree:  # assignment 3
 
     def __init__(self, data):
@@ -31,28 +34,3 @@ class binary_tree:  # assignment 3
 
     def length(self):
         return len(self.store)
-
-
-class Queue:  # helper class for assignment 3
-
-   def __init__(self):
-      self.data = []
-   
-   def add(self, new_data):
-      self.data += [new_data]
-      return True
-   
-   def take(self):
-      if self.data == []:
-         return False
-      first = self.data[0]
-      self.data = self.data[1:len(self.data )]
-      return first
-
-   def length(self):
-      return len(self.data)
-
-   def peek(self):
-      print(self.data)
-      return True
-    
