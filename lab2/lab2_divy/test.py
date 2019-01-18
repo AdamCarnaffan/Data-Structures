@@ -38,4 +38,12 @@ def test2():
     print(a.Get_LevelOrder())
     return True
 
-test1()
+
+def test3():
+    a = binary_tree(1000)
+    b = binary_tree(2000)
+    a.AddRight(b)
+    print(a.store)
+    return True
+
+test3()
