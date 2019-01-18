@@ -9,14 +9,14 @@ class tree:
    def AddSuccessor(self, x):
       self.store[1] = self.store[1] + [x]
       return True
-   
+
    def Print_DepthFirst(self):  # assignment 1
       printer = Stack()
       printer.push(self.store)
       printer.push("")
       while printer.length() > 0:
-         popped = printer.pop()
          indent = printer.pop()
+         popped = printer.pop()
          print(indent + str(popped[0]))
          for i in popped[1][::-1]:
             printer.push(i.store)

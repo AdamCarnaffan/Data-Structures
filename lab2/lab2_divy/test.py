@@ -38,4 +38,4 @@ def test2():
     print(a.Get_LevelOrder())
     return True
 
-test2()
+test1()
