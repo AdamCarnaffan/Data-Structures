@@ -35,8 +35,9 @@ class tree:
       return order
    
    def ConvertToBinaryTree(self):  # assignment 4
-      return True
-   
+      pass
+
+
 
 class Stack:  # helper class for assignment 1
 
