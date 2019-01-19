@@ -10,17 +10,11 @@ typedef struct llnode llnode;
 int llnode_add_to_head(llnode **x, char new_value) {
    llnode *new_head = NULL;
    if (x == NULL) {
-      return -1;
-   }
-   if (*x == NULL) {
-      *x = (llnode *)malloc(sizeof(llnode));
-      (*x)->value = new_value;
-      (*x)->next = NULL;
-      return 0;
+      return 1;
    }
    new_head = (llnode *)malloc(sizeof(llnode));
-   new_head->next = *x;
    new_head->value = new_value;
+   new_head->next = *x;  /* if *x is NULL, than next just points to NULL */
    *x = new_head;
    return 0;
 }
@@ -34,14 +28,15 @@ int llnode_add_to_tail(llnode **x, char value) {
       (*x)->value = value;
       (*x)->next = NULL;
       return 0;
-   } else {
+   } 
+   else {
       return llnode_add_to_tail(&((*x)->next),value);
    }
 }
 
 int llnode_print_from_head(llnode *x) {
    if (x == NULL) { 
-	return 0; 
+	   return 0; 
 	}
    else {
       printf("%c\n",x->value);
@@ -51,7 +46,7 @@ int llnode_print_from_head(llnode *x) {
 
 int llnode_print_from_tail(llnode *x) {
    if (x == NULL) { 
-	return 0; 
+	   return 0; 
 	}
    else {
       if (x->next == NULL) {
@@ -65,12 +60,11 @@ int llnode_print_from_tail(llnode *x) {
    }
 }
 
-int push(llnode **x, char value) {
-   int pusher = 0;
+int push(llnode **x, char new_value) {
    if (x == NULL) {
       return -1;
    }
-   return llnode_add_to_tail(x, value);
+   return llnode_add_to_tail(x, new_value);
 }
 
 int pop(llnode **x, char *return_value) {
@@ -95,24 +89,28 @@ int pop(llnode **x, char *return_value) {
 }
 
 int main(void) {
-   int n = 0;
+   int counter = 0;
    char value = 0;
-   char pop_char = 0;
-   int rvalue = 0;
+   char popped = 0;
+   int checker = -1;
    llnode *input_list = NULL;
    while (scanf("%c", &value) != EOF) {
-      n = n + 1;
+      counter = counter + 1;
       push(&input_list, value);
    }
-   llnode_print_from_head(input_list);
-   printf("INFO: you entered %d items\n", n);
-   while (n != 0) {
-      pop(&input_list, &pop_char);
-      printf("The return popped char is: %c\n", pop_char);
-      n = n - 1;
+   printf("INFO: you entered %d items\n", counter);
+   checker = llnode_print_from_head(input_list);
+   if ( checker != 0) { 
+      printf("ERR: llnode_print returned an error\n"); 
+   }
+   while (counter != 0) {
+      pop(&input_list, &popped);
+      printf("The return popped char is: %c\n", popped);
+      counter -= 1;
    } 
-   /* rvalue = llnode_print_from_head(input_list);
-   if ( !(rvalue==0) ) { printf("ERR: llnode_print returned an error\n"); } */
-
+   checker = llnode_print_from_head(input_list);
+   if ( checker != 0) { 
+      printf("ERR: llnode_print returned an error\n"); 
+   }
    return 0;
 }

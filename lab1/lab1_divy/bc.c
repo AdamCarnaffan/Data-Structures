@@ -7,75 +7,32 @@ struct llnode {
 };
 typedef struct llnode llnode;
 
-int llnode_add_to_head(llnode **x, char new_value) {
-   llnode *new_head = NULL;
-   if (x == NULL) {
-      return -1;
-   }
-   if (*x == NULL) {
-      *x = (llnode *)malloc(sizeof(llnode));
-      (*x)->value = new_value;
-      (*x)->next = NULL;
-      return 0;
-   }
-   new_head = (llnode *)malloc(sizeof(llnode));
-   new_head->next = *x;
-   new_head->value = new_value;
-   *x = new_head;
-   return 0;
-}
-
 int llnode_add_to_tail(llnode **x, char value) {
-   if (x == NULL) { 
-      return -1; 
+   if (x == NULL) {
+     return -1;
    }
    if (*x == NULL) {
       *x = (llnode *)malloc(sizeof(llnode));
       (*x)->value = value;
       (*x)->next = NULL;
       return 0;
-   } else {
+   }
+   else {
       return llnode_add_to_tail(&((*x)->next),value);
    }
 }
 
-int llnode_print_from_head(llnode *x) {
-   if (x == NULL) { 
-	return 0; 
-	}
-   else {
-      printf("%c\n",x->value);
-      return llnode_print_from_head(x->next);
-   }
-}
-
-int llnode_print_from_tail(llnode *x) {
-   if (x == NULL) { 
-	return 0; 
-	}
-   else {
-      if (x->next == NULL) {
-         printf("%c\n",x->value);
-	 return 0;
-      } else {
-         llnode_print_from_tail(x->next);
-         printf("%c\n",x->value);
-	 return 0;
-      }
-   }
-}
-
-int push(llnode **x, char value) {
-   int pusher = 0;
+int push(llnode **x, char new_value) {
    if (x == NULL) {
       return -1;
    }
-   return llnode_add_to_tail(x, value);
+   return llnode_add_to_tail(x, new_value);
 }
 
 int pop(llnode **x, char *return_value) {
    llnode *tail = NULL;
    if ((x == NULL) || (*x == NULL)) {
+      *return_value = 0;
       return -1;
    }
    else if ((*x)->next == NULL) {
@@ -94,63 +51,60 @@ int pop(llnode **x, char *return_value) {
    return 0;
 }
 
-int bc(llnode **list, char in) {
-   char left[3] = "({[";
-   char right[3] = "]})";
-   int i = 0;
-   int j = 0;
-   char popped = 0;
-   char compare = 0;
-   int check_right = 1;
-   if (list == NULL) {
-      return -1;
+int llnode_print_from_head(llnode *x) {
+   if (x == NULL) { 
+   return 0; 
    }
-   for (i = 0; i < 3; i++) {
-      if (left[i] == in) {
-         *list = (llnode *)malloc(sizeof(llnode));
-         push(list, in);
-         check_right = 0;
-      }
+   else {
+      printf("%c\n",x->value);
+      return llnode_print_from_head(x->next);
    }
-   if (check_right == 1) {
-      for (j = 0; j < 3; j++) {
-         if (right[j] == in) {
-            pop(list, &popped);
-            if (popped == "[") {
-               compare = "]";
-            }
-            else if (popped == "{") {
-               compare = "}";
-            }
-            else if (popped == "(") {
-               compare = ")";
-            }
-            if (compare != in) {
-               return -1;
-            }
-         }
-      }
-   }
-   return 0;
 }
 
 int main(void) {
-   int count = 0;
-   char piece = 0;
-   llnode *list = NULL;
-   int check = 0;
+   int counter = 0;
    int fail = 0;
-   int fail_cnt = 0;
-   while (scanf("%c", &piece) != EOF) {
-      check = bc(&list, piece);
-      if (check == -1) {
-         fail = 1;
-         fail_cnt = count;
+   int fail_position = -1;
+   char input = 0;
+   llnode *checker = NULL;
+   char left[3] = "({[";
+   char right[3] = "]})";
+   int i = 0;
+   char popped = 0;
+   char flip = 0;
+   while (scanf("%c", &input) != EOF) {
+      counter += 1;
+      for (i = 0; i < 3; i++) {
+         if (input == left[i]) {
+            push(&checker, input);
+         }
+         else if (input == right[i]) {
+            pop(&checker, &popped);
+            if (popped == '[') {
+               flip = ']';
+            }
+            else if (popped == '{') {
+               flip = '}';
+            }
+            else if (popped == '(') {
+               flip = ')';
+            }
+            if ((flip != input) && (fail == 0)) {
+               fail = 1;
+               if (fail_position == -1) {
+                  fail_position = counter;
+               }
+            }
+            flip = 0;
+         }
       }
-      count = count + 1;
    }
-   if ((fail == 1) || (list != NULL)) {
-      printf("FAIL, %d\n", fail_cnt);
+   pop(&checker, &popped);
+   if ((fail == 0) && (fail_position == -1) && (popped != 0)) {
+      printf("Fail, %d\n", counter);
+   } 
+   else if ((fail == 1) || (fail_position != -1) || (popped != 0)) {
+      printf("FAIL, %d\n", fail_position);
    }
    else {
       printf("PASS\n");

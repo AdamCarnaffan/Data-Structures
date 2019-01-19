@@ -16,7 +16,8 @@ def bc(string):
             if s[i] == j:
                 checker.push(s[i])
                 check_right = False
-        if check_right:
+                break  # break the for-loop to save on a few possible extra iterations
+        if check_right:  # boolean toggle to avoid running unnecessary for-loop
             for k in right:
                 if s[i] == k:
                     if len(checker.items) != 0:
@@ -32,6 +33,6 @@ def bc(string):
                     else:
                         return [False, i]
     if len(checker.items) == 0:
-        return [True, 0]
+        return [True, 0]  # made the choice to return 0 for true since it wasn't indicated in the lab
     else:
         return [False, i]
