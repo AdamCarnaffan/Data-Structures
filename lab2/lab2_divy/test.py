@@ -1,15 +1,16 @@
 from binary_tree import *
 from tree import *
 
+
 def test1():
     x = tree(1000)
     y = tree(2000)
     z = tree(3000)
-    c = tree(5000)
-    d = tree(6000)
-    e = tree(7000)
-    f = tree(8000)
-    g = tree(9000)
+    c = tree(4000)
+    d = tree(5000)
+    e = tree(6000)
+    f = tree(7000)
+    g = tree(8000)
     x.AddSuccessor(y)
     x.AddSuccessor(z)
     y.AddSuccessor(c)
@@ -35,15 +36,8 @@ def test2():
     b.AddRight(e)
     c.AddLeft(f)
     c.AddRight(g)
+    a.display()
     print(a.Get_LevelOrder())
     return True
 
-
-def test3():
-    a = binary_tree(1000)
-    b = binary_tree(2000)
-    a.AddRight(b)
-    print(a.store)
-    return True
-
-test3()
+test1()

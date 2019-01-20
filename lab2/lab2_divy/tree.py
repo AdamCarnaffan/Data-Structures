@@ -18,42 +18,38 @@ class tree:
          indent = printer.pop()
          popped = printer.pop()
          print(indent + str(popped[0]))
-         for i in popped[1][::-1]:
-            printer.push(i.store)
+         for i in range(len(popped[1]) - 1, -1, -1):  # doing reverse order to make the display 'correct'
+            printer.push(popped[1][i].store)
             printer.push(indent + "   ")
       return True
 
    def Get_LevelOrder(self):  # assignment 2
       order = []
       helper = Queue()
-      helper.add(self.store)
+      helper.enqueue(self.store)
       while helper.length() > 0:
-         level = helper.take()
+         level = helper.dequeue()
          order += [level[0]]
          for i in level[1]:
-            helper.add(i.store)
+            helper.enqueue(i.store)
       return order
    
    def ConvertToBinaryTree(self):  # assignment 4
       q = Queue()
-      q.add(self.store)
-      btree = binary_tree(self.store[0])
-      sib_tog = False
+      q.enqueue(self.store)
+      root = binary_tree(self.store[0])
+      btree = root
       while q.length() > 0:
-         sib_tog = False
-         node = q.take()
-         for i in node[1:len(node)]:
-            q.add(i.store)
-            sib_tog = True
-         sib = q.take()
-         if sib != False and sib_tog:
-            btree.AddRight(sib)
-         pass
-      
+         node = q.dequeue()
+         btree.set_data(node[0])
+         btree.AddLeft()
+         for i in node[1]:
+            q.enqueue(i.store)
          
 
 
 
+      return True
 
 
 
@@ -86,11 +82,11 @@ class Queue:  # helper class for assignment 2 and 3
    def __init__(self):
       self.data = []
    
-   def add(self, new_data):
+   def enqueue(self, new_data):
       self.data += [new_data]
       return True
    
-   def take(self):
+   def dequeue(self):
       if self.data == []:
          return False
       first = self.data[0]
