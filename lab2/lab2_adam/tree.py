@@ -30,6 +30,26 @@ class binary_tree:
             q.enqueue(r[2].store)
       return final
 
+   def convertToTree(self):
+      t = tree(self.store[0])
+      if self.store[1] != []:
+         sibs = self.store[1].convertToTree()
+         t.AddSuccessor(sibs[0])
+         for l in sibs[1]:
+            t.AddSuccessor(l)
+      if self.store[2] != []:
+         sibs = self.store[2].convertToTree()
+         if type(sibs) == list:
+            final = [sibs[0]]
+            for s in sibs[1]:
+               final = final + [s]
+            return [t, final]
+         else:
+            return [t, [sibs]]
+      return t
+
+
+
 
 class tree:
    def __init__(self, x):
@@ -82,6 +102,7 @@ def main():
    a.AddSuccessor(tree("texdoc"))
    #print(a.Get_LevelOrder())
    l = a.convertToBinaryTree()
-   print(l.Get_LevelOrder())
+   v = l.convertToTree()
+   print(v.Get_LevelOrder())
 
 main()
