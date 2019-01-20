@@ -1,34 +1,54 @@
-def sort_lists_by_length(l):
-   res = list(l)
-   for x in range(0, len(l), 1):
-      for y in range(0, len(l), 1):
-         if len(res[x]) > len(res[y]):
-            temp = res[x]
-            res[x] = res[y]
-            res[y] = temp
-   return res
-
-
-class Queue:
-   def __init__(self):
-      self.vals = []
-
-   def push(self, x):
-      self.vals = self.vals + [x]
-      return True
-
-   def pop(self):
-      if len(self.vals) < 1:
-         return [False, []]
-      val = self.vals[0]
-      self.vals = self.vals[1:len(self.vals)]
-      return [True, val]
+from queue_helper import Queue
 
 
 class binary_tree:
-
    def __init__(self, x):
-      self.store = [x]
+      self.store = [x, [], []] # Val, left, right -> left = Child -> right = Sibling
+
+   def AddLeft(self, val):
+      if self.store[1] != []:
+         return False
+      self.store[1] = val
+      return True
+
+   def AddRight(self, val):
+      if self.store[2] != []:
+         return False
+      self.store[2] = val
+      return True
+
+   def Get_LevelOrder(self):
+      q = Queue()
+      q.enqueue(self.store)
+      final = []
+      while len(q.vals) > 0:
+         r = q.dequeue()[1]
+         final = final + [r[0]]
+         if r[1] != []:
+            q.enqueue(r[1].store)
+         if r[2] != []:
+            q.enqueue(r[2].store)
+      return final
+
+   def convertToTree(self):
+      t = tree(self.store[0])
+      if self.store[1] != []:
+         sibs = self.store[1].convertToTree()
+         t.AddSuccessor(sibs[0])
+         for l in sibs[1]:
+            t.AddSuccessor(l)
+      if self.store[2] != []:
+         sibs = self.store[2].convertToTree()
+         if type(sibs) == list:
+            final = [sibs[0]]
+            for s in sibs[1]:
+               final = final + [s]
+            return [t, final]
+         else:
+            return [t, [sibs]]
+      return t
+
+
 
 
 class tree:
@@ -39,37 +59,50 @@ class tree:
       self.store[1] = self.store[1] + [x]
       return True
 
-   def Print_DepthFirst(self):
-      disp = ""
-      for val in self.store[1]:
-         disp = disp + "   " + str(val.store[0])
-      print(disp)
+   def display(self, indent):
+      ind = ''
+      for i in range(0, indent, 1):
+         ind = ind + '   '
+      print(ind + self.store[0])
+      for t in self.store[1]:
+         t.display(indent+1)
       return True
 
    def Get_LevelOrder(self):
-      t = Queue()
-      t.push(self.store)
-      strct = []
-      while True:
-         result = t.pop()
-         if not result[0]:
-            break
-         store = result[1]
-         strct = strct + [store[0]]
-         for l in store[1]:
-            t.push(l.store)
-      return strct
+      q = Queue()
+      q.enqueue(self.store)
+      final = []
+      while len(q.vals) > 0:
+         r = q.dequeue()[1]
+         final = final + [r[0]]
+         for i in r[1]:
+            q.enqueue(i.store)
+      return final
+
+   def convertToBinaryTree(self, sibs=[]):
+      b = binary_tree(self.store[0])
+      if len(self.store[1]) > 0:
+         b.AddLeft(self.store[1][0].convertToBinaryTree(self.store[1][1:len(self.store[1])]))
+      if len(sibs) > 0:
+         b.AddRight(sibs[0].convertToBinaryTree(sibs[1:len(sibs)]))
+      return b
+      
 
 
 def main():
-   a = tree(5)
-   b = tree(9)
-   e = tree(4)
-   a.AddSuccessor(e)
-   e.AddSuccessor(tree(12))
+   a = tree("texmf")
+   a.AddSuccessor(tree("doc"))
+   a.AddSuccessor(tree("fonts"))
+   a.AddSuccessor(tree("source"))
+   b = tree("tex")
+   b.AddSuccessor(tree("generic"))
+   b.AddSuccessor(tree("latex"))
+   b.AddSuccessor(tree("plain"))
    a.AddSuccessor(b)
-   b.AddSuccessor(tree(3))
-   # a.Print_DepthFirst()
-   print(a.Get_LevelOrder())
+   a.AddSuccessor(tree("texdoc"))
+   #print(a.Get_LevelOrder())
+   l = a.convertToBinaryTree()
+   v = l.convertToTree()
+   print(v.Get_LevelOrder())
 
 main()
