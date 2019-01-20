@@ -35,7 +35,25 @@ class tree:
       return order
    
    def ConvertToBinaryTree(self):  # assignment 4
-      pass
+      q = Queue()
+      q.add(self.store)
+      btree = binary_tree(self.store[0])
+      sib_tog = False
+      while q.length() > 0:
+         sib_tog = False
+         node = q.take()
+         for i in node[1:len(node)]:
+            q.add(i.store)
+            sib_tog = True
+         sib = q.take()
+         if sib != False and sib_tog:
+            btree.AddRight(sib)
+         pass
+      
+         
+
+
+
 
 
 
