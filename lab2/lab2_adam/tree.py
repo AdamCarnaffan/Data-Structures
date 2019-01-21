@@ -17,6 +17,17 @@ class binary_tree:
       self.store[2] = val
       return True
 
+   def display(self, indent):
+      ind = ''
+      for i in range(0, indent, 1):
+         ind = ind + '   '
+      print(ind + self.store[0])
+      if self.store[2] != []:
+         self.store[2].display(indent+1)
+      if self.store[1] != []:
+         self.store[1].display(indent+1)
+      return True
+
    def Get_LevelOrder(self):
       q = Queue()
       q.enqueue(self.store)
@@ -47,8 +58,6 @@ class binary_tree:
          else:
             return [t, [sibs]]
       return t
-
-
 
 
 class tree:
@@ -86,6 +95,46 @@ class tree:
       if len(sibs) > 0:
          b.AddRight(sibs[0].convertToBinaryTree(sibs[1:len(sibs)]))
       return b
+
+   def convertToBinaryTree_Non(self):
+      root = binary_tree(self.store[0])
+      newq = Queue()
+      for v in self.store[1]:
+         newq.enqueue(v)
+      targ = root
+      childPaths = Queue()
+      children = Queue()
+      childPaths.enqueue(newq)
+      sibs = []
+      while len(childPaths.vals) > 0:
+         first = True
+         rt = childPaths.dequeue()[1]
+         while True:
+            child = rt.dequeue()
+            if child[0] == False:
+               break
+            t = child[1]
+            b = binary_tree(t.store[0])
+            if first:
+               targ.AddLeft(b)
+               branch = b
+               first = False
+            else:
+               sibs = sibs + [b]
+            children.enqueue(b)
+            newq = Queue()
+            for vl in t.store[1]:
+               newq.enqueue(vl)
+            childPaths.enqueue(newq)
+         print(childPaths.vals)
+         for v in sibs:
+            print(branch.store[0])
+            print(v.store[0])
+            branch.AddRight(v)
+            branch = v
+         sibs = []
+         targ = children.dequeue()[1]
+      return root
       
 
 
@@ -102,7 +151,8 @@ def main():
    a.AddSuccessor(tree("texdoc"))
    #print(a.Get_LevelOrder())
    l = a.convertToBinaryTree()
-   v = l.convertToTree()
-   print(v.Get_LevelOrder())
+   print(l.Get_LevelOrder())
+   l.display(0)
+   print(l.store[1].store[2].store[2].store[2].store[1].store[0])
 
 main()
