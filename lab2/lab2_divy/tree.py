@@ -1,4 +1,4 @@
-from binary_tree import *
+import binary_tree
 
 
 class tree:
@@ -35,21 +35,12 @@ class tree:
       return order
    
    def ConvertToBinaryTree(self):  # assignment 4
-      q = Queue()
-      q.enqueue(self.store)
-      root = binary_tree(self.store[0])
-      btree = root
-      while q.length() > 0:
-         node = q.dequeue()
-         btree.set_data(node[0])
-         btree.AddLeft()
-         for i in node[1]:
-            q.enqueue(i.store)
-         
-
-
-
-      return True
+      root = binary_tree.binary_tree(self.store[0])
+      branch = root
+      nexts = Queue()
+      current = Queue()
+      while nexts.length() > 0 and current.length() > 0:
+      return root
 
 
 

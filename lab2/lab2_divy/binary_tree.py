@@ -1,30 +1,26 @@
-from tree import *
+import tree
 
 
 class binary_tree:  # assignment 3
 
     def __init__(self, data):
-        self.store = [data]
+        self.store = [data, [], []]
 
     def AddLeft(self, new_tree):
-        if self.length() == 1:
-            self.store += [new_tree]
+        self.store[1] = new_tree
         return True
 
     def AddRight(self, new_tree):
-        if self.length() == 1:
-            self.store += [[]] + [new_tree]
-        elif self.length() == 2:
-            self.store += [new_tree]
+        self.store[2] = new_tree
         return True
 
-    def set_data(self, over_ride_data):
+    def set_data(self, over_ride_data):  # created just incase it was needed
         self.store[0] = over_ride_data
         return True
 
     def Get_LevelOrder(self):
         order = []
-        helper = Queue()
+        helper = tree.Queue()
         helper.enqueue(self.store)
         while helper.length() > 0:
             level = helper.dequeue()
@@ -32,7 +28,8 @@ class binary_tree:  # assignment 3
                 continue
             order += [level[0]]
             for i in level[1:len(level)]:
-                helper.enqueue(i.store)
+                if i != []:
+                    helper.enqueue(i.store)
         return order
     
     def ConvertToTree(self):  # assignment 5
@@ -42,7 +39,7 @@ class binary_tree:  # assignment 3
         return len(self.store)
     
     def display(self):
-        printer = Stack()
+        printer = tree.Stack()
         printer.push(self.store)
         printer.push("")
         while printer.length() > 0:
