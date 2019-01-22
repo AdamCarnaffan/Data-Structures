@@ -19,11 +19,14 @@ def test1():
     z.AddSuccessor(f)
     z.AddSuccessor(g)
     x.Print_DepthFirst()
+    print(x.Get_LevelOrder())
     print("\nBinary Tree Conversion:")
     btree = x.ConvertToBinaryTree()
     btree.display()
-    print("\n After Conversion:")
-    x.Print_DepthFirst()
+    print(btree.store)
+    print(btree.Get_LevelOrder())
+    print("\nConvert Back:")
+    print(btree.ConvertToTree())
     return True
 
 def test2():
@@ -36,14 +39,15 @@ def test2():
     g = binary_tree.binary_tree(7000)
     h = binary_tree.binary_tree(8000)
     a.AddLeft(b)
+    a.AddRight(c)
     b.AddRight(d)
-    b.AddLeft(c)
-    d.AddRight(e)
-    c.AddLeft(f)
-    f.AddRight(g)
+    b.AddLeft(e)
+    c.AddRight(f)
+    c.AddLeft(g)
     g.AddRight(h)
     a.display()
-    print(a.Get_LevelOrder())
     return True
+
+
 test1()
 test2()

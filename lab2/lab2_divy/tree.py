@@ -35,27 +35,34 @@ class tree:
       return order
    
    def ConvertToBinaryTree(self):  # assignment 4
-      siblings = Queue()
-      branch_node = Queue()
-      branch_node.enqueue(self)
+      order = Queue()
+      order.enqueue(self)
+      next_level = Queue()
       root = binary_tree.binary_tree(self.store[0])
       branch = root
-      while siblings.length() > 0 or branch_node.length() > 0:
-         current = branch_node.dequeue()
-         q = Queue()
-         q.enqueue(current)
-         for i in current.store[1]:
-            q.enqueue(i)
-         branch_node.enqueue(q)
-         if siblings.length() > 0:
-            sib = siblings.dequeue()
-            branch.AddLeft(binary_tree.binary_tree(sib.store[0]))
+      current = order.dequeue()
+      while True:
+         if len(current.store[1]) > 0:
+            child1 = current.store[1][0]
+            branch.AddLeft(binary_tree.binary_tree(child1.store[0]))
+            if len(current.store[1]) > 1:
+               temp = Queue()
+               temp.enqueue(branch.store[1])
+               for i in current.store[1]:
+                  temp.enqueue(i)
+               next_level.enqueue(temp)
+         if order.length() > 0:
+            next1 = order.dequeue()
+            branch.AddRight(binary_tree.binary_tree(next1.store[0]))
+            current = next1
             branch = branch.store[2]
             continue
+         elif next_level.length() > 0:
+            order = next_level.dequeue()
+            branch = order.dequeue()
+            current = order.dequeue()
          else:
-            
-
-
+            return root
       return root
 
 
