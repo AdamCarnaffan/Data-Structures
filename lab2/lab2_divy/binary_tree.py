@@ -14,10 +14,6 @@ class binary_tree:  # assignment 3
         self.store[2] = new_tree
         return True
 
-    def set_data(self, over_ride_data):  # created just incase it was needed
-        self.store[0] = over_ride_data
-        return True
-
     def Get_LevelOrder(self):
         order = []
         helper = tree.Queue()
@@ -33,7 +29,23 @@ class binary_tree:  # assignment 3
         return order
     
     def ConvertToTree(self):  # assignment 5
-        pass
+        if self.store[2] != []:
+            return [False, []]
+        root = tree.tree(self.store[0])
+        branch = root
+        order = tree.Queue()
+        next_level = tree.Queue()
+        current = self
+        while True:
+            if current.store[1] != []:
+                left = current.store[1]
+                branch.store[1] += tree.tree(left.store[0])
+                temp = tree.Queue()
+                temp.enqueue(current.store[1])
+                next_level.enqueue(current.store[1])
+                break
+        return True
+
 
     def length(self):
         return len(self.store)
