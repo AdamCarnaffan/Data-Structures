@@ -63,13 +63,13 @@ class TicTacToe:
       enemy = 2 if self.playing == 1 else 1
       for r in results:
          if r == self.playing:
-            return ind
+            return moves[ind]
          elif r == enemy:
-            nonLoss = nonLoss + [ind]
+            nonLoss = nonLoss + [moves[ind]]
          ind = ind + 1
       if len(nonLoss) > 0:
          return nonLoss[0]
-      return moves[random.randint(0, len(moves))]
+      return moves[random.randint(0, len(moves)-1)]
 
    def simulate_move(self, pos, playAsSelf):
       new = self.duplicate()
@@ -102,11 +102,10 @@ class TicTacToe:
       if self.make_move(pos):
          self.movesMade = self.movesMade + 1
          win = self.check_win(pos)
-         print(win)
          self.change_turn()
          if self.useAI and self.playing == 2 and win == 0 and self.movesMade <= 8:
-            print("TRIED")
             move = self.generate_move()
+            print("TRYING " + str(move))
             win = self.process_turn(move)[1]
          if win == 0 and self.movesMade > 8:
             win = -1
@@ -153,8 +152,9 @@ def main():
    game.display()
    while True:
       move = input()
+      res = game.process_turn(int(move))
       try:
-         res = game.process_turn(int(move))
+         pass
       except:
          print("ERR: The position input was invalid")
          continue
