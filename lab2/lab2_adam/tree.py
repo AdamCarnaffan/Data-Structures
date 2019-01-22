@@ -32,13 +32,16 @@ class tree:
             q.enqueue(i.store)
       return final
 
-   def ConvertToBinaryTree(self, sibs=[]):
+   def ConvertToBinary_Builder(self, sibs):
       b = bt.binary_tree(self.store[0])
       if len(self.store[1]) > 0:
-         b.AddLeft(self.store[1][0].ConvertToBinaryTree(self.store[1][1:len(self.store[1])]))
+         b.AddLeft(self.store[1][0].ConvertToBinary_Builder(self.store[1][1:len(self.store[1])]))
       if len(sibs) > 0:
-         b.AddRight(sibs[0].ConvertToBinaryTree(sibs[1:len(sibs)]))
+         b.AddRight(sibs[0].ConvertToBinary_Builder(sibs[1:len(sibs)]))
       return b
+
+   def ConvertToBinaryTree(self):
+      return self.ConvertToBinary_Builder([])
 
    def ConvertToBinaryTree_Non(self):
       root = bt.binary_tree(self.store[0])
