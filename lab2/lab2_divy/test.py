@@ -19,12 +19,16 @@ def test1():
     z.AddSuccessor(f)
     z.AddSuccessor(g)
     x.Print_DepthFirst()
+    print(x.Get_LevelOrder())
     print("\nBinary Tree Conversion:")
     btree = x.ConvertToBinaryTree()
     btree.display()
-    print("\n After Conversion:")
-    x.Print_DepthFirst()
+    print(btree.Get_LevelOrder())
+    print("\nConvert Back:")
+    reverted = btree.ConvertToTree()
+    reverted.Print_DepthFirst()
     return True
+
 
 def test2():
     a = binary_tree.binary_tree(1000)
@@ -36,14 +40,35 @@ def test2():
     g = binary_tree.binary_tree(7000)
     h = binary_tree.binary_tree(8000)
     a.AddLeft(b)
+    a.AddRight(c)
     b.AddRight(d)
-    b.AddLeft(c)
-    d.AddRight(e)
-    c.AddLeft(f)
-    f.AddRight(g)
+    b.AddLeft(e)
+    c.AddRight(f)
+    c.AddLeft(g)
     g.AddRight(h)
     a.display()
-    print(a.Get_LevelOrder())
     return True
+
+
+def test3():
+   a = tree.tree("texmf")
+   a.AddSuccessor(tree.tree("doc"))
+   a.AddSuccessor(tree.tree("fonts"))
+   a.AddSuccessor(tree.tree("source"))
+   b = tree.tree("tex")
+   b.AddSuccessor(tree.tree("generic"))
+   b.AddSuccessor(tree.tree("latex"))
+   b.AddSuccessor(tree.tree("plain"))
+   a.AddSuccessor(b)
+   a.AddSuccessor(tree.tree("texdoc"))
+   a.Print_DepthFirst()
+   x = a.ConvertToBinaryTree()
+   x.display()
+   l = x.ConvertToTree()
+   l.Print_DepthFirst()
+
+print("test 1")   
 test1()
-test2()
+print("\ntest 3")
+test3()
+

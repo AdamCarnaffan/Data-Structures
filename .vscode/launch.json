@@ -32,6 +32,15 @@
          "console": "integratedTerminal"
       },
       {
+         "name": "Python: Test Project",
+         "type": "python",
+         "request": "launch",
+         "program": "${fileDirname}/test.py",
+         "env": {"PYTHONPATH": "${fileDirname}"},
+         "cwd": "${fileDirname}",
+         "console": "integratedTerminal"
+      },
+      {
          "name": "Python: Attach",
          "type": "python",
          "request": "attach",
