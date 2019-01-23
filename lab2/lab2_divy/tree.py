@@ -36,11 +36,10 @@ class tree:
    
    def ConvertToBinaryTree(self):  # assignment 4
       order = Queue()
-      order.enqueue(self)
       next_level = Queue()
       root = binary_tree.binary_tree(self.store[0])
       branch = root
-      current = order.dequeue()
+      current = self
       while True:
          if len(current.store[1]) > 0:
             child1 = current.store[1][0]

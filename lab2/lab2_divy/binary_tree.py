@@ -36,15 +36,25 @@ class binary_tree:  # assignment 3
         order = tree.Queue()
         next_level = tree.Queue()
         current = self
+        parent = branch
         while True:
             if current.store[1] != []:
-                left = current.store[1]
-                branch.store[1] += tree.tree(left.store[0])
-                temp = tree.Queue()
-                temp.enqueue(current.store[1])
-                next_level.enqueue(current.store[1])
-                break
-        return True
+                branch.AddSuccessor(tree.tree(current.store[1].store[0]))
+                next_level.enqueue(branch)
+                next_level.enqueue(branch.store[1][0])
+            order.enqueue(branch)
+            if current.store[2] != []:
+                branch = tree.tree(current.store[2].store[0])
+                current = current.store[2]
+            else:
+                while order.length() > 0:
+                    parent.AddSuccessor(order.dequeue())
+            if order.length() == 0 and next_level.length() > 0:
+                parent = next_level.dequeue()
+                branch = next_level.dequeue()
+            elif next_level.length() == 0 and order.length() == 0:
+                return root
+        return root
 
 
     def length(self):
