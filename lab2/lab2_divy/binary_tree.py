@@ -32,28 +32,32 @@ class binary_tree:  # assignment 3
         if self.store[2] != []:
             return [False, []]
         root = tree.tree(self.store[0])
-        branch = root
-        order = tree.Queue()
-        next_level = tree.Queue()
+        order = tree.Queue()  # siblings queue
+        next_step = tree.Queue()  # childrens queue
         current = self
-        parent = branch
+        branch = root
+        first = True
         while True:
-            if current.store[1] != []:
-                branch.AddSuccessor(tree.tree(current.store[1].store[0]))
-                next_level.enqueue(branch)
-                next_level.enqueue(branch.store[1][0])
-            order.enqueue(branch)
-            if current.store[2] != []:
+            if current.store[1] != []:  # child check
+                #branch.AddSuccessor(tree.tree(current.store[1].store[0]))
+                next_step.enqueue(branch)  # will be a parent
+                next_step.enqueue(tree.tree(current.store[1].store[0]))
+                next_step.enqueue(current.store[1])
+            if not first:
+                order.enqueue(branch)
+            if current.store[2] != []:  # siblings check
                 branch = tree.tree(current.store[2].store[0])
                 current = current.store[2]
             else:
                 while order.length() > 0:
                     parent.AddSuccessor(order.dequeue())
-            if order.length() == 0 and next_level.length() > 0:
-                parent = next_level.dequeue()
-                branch = next_level.dequeue()
-            elif next_level.length() == 0 and order.length() == 0:
-                return root
+                if next_step.length() >= 3:
+                    parent = next_step.dequeue()
+                    branch = next_step.dequeue()
+                    current = next_step.dequeue()
+                else:
+                    break
+            first = False
         return root
 
 
