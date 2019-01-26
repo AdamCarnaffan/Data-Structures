@@ -39,7 +39,6 @@ class binary_tree:  # assignment 3
         first = True
         while True:
             if current.store[1] != []:  # child check
-                #branch.AddSuccessor(tree.tree(current.store[1].store[0]))
                 next_step.enqueue(branch)  # will be a parent
                 next_step.enqueue(tree.tree(current.store[1].store[0]))
                 next_step.enqueue(current.store[1])
@@ -58,12 +57,11 @@ class binary_tree:  # assignment 3
                 else:
                     break
             first = False
-        return root
-
+        return [True, root]
 
     def length(self):
         return len(self.store)
-    
+
     def display(self):
         printer = tree.Stack()
         printer.push(self.store)

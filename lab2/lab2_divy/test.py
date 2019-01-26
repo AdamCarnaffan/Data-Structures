@@ -29,46 +29,6 @@ def test1():
     reverted.Print_DepthFirst()
     return True
 
-
-def test2():
-    a = binary_tree.binary_tree(1000)
-    b = binary_tree.binary_tree(2000)
-    c = binary_tree.binary_tree(3000)
-    d = binary_tree.binary_tree(4000)
-    e = binary_tree.binary_tree(5000)
-    f = binary_tree.binary_tree(6000)
-    g = binary_tree.binary_tree(7000)
-    h = binary_tree.binary_tree(8000)
-    a.AddLeft(b)
-    a.AddRight(c)
-    b.AddRight(d)
-    b.AddLeft(e)
-    c.AddRight(f)
-    c.AddLeft(g)
-    g.AddRight(h)
-    a.display()
-    return True
-
-
-def test3():
-   a = tree.tree("texmf")
-   a.AddSuccessor(tree.tree("doc"))
-   a.AddSuccessor(tree.tree("fonts"))
-   a.AddSuccessor(tree.tree("source"))
-   b = tree.tree("tex")
-   b.AddSuccessor(tree.tree("generic"))
-   b.AddSuccessor(tree.tree("latex"))
-   b.AddSuccessor(tree.tree("plain"))
-   a.AddSuccessor(b)
-   a.AddSuccessor(tree.tree("texdoc"))
-   a.Print_DepthFirst()
-   x = a.ConvertToBinaryTree()
-   x.display()
-   l = x.ConvertToTree()
-   l.Print_DepthFirst()
-
 print("test 1")   
 test1()
-print("\ntest 3")
-test3()
 
