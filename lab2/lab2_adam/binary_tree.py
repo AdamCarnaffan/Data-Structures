@@ -44,7 +44,7 @@ class binary_tree:
             q.enqueue(r[2].store)
       return final
 
-   def ConvertToTree(self):
+   def ConvertToTree_Builder(self):
       t = tt.tree(self.store[0])
       if self.store[1] != []:
          sibs = self.store[1].ConvertToTree()
@@ -61,3 +61,9 @@ class binary_tree:
          else:
             return [t, [sibs]]
       return t
+
+   def ConvertToTree(self):
+      if self.store[2] != []:
+         return [False, []]
+      else:
+         return [True, self.ConvertToTree_Builder()]
