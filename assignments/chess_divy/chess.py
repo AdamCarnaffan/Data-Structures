@@ -18,6 +18,7 @@ def GetPieceLegalMoves(board, position):  # legal moves of piece at position
       player = 20
       opponent = 10
    peice_type = int(str(peice)[1])  # we now know player and type of piece
+   row  = (position + 1)//8
    if peice_type == 0:  # pawn moves
       if player == 10:
          for i in range(position + 7, position + 10, 1):
@@ -33,4 +34,8 @@ def GetPieceLegalMoves(board, position):  # legal moves of piece at position
                moves += [i]
       return moves
    elif peice_type == 1:  # knight moves
+      for i in range(position-2, position + 3, 2):
+         if i < 0 or i > 63:
+            continue
+         
         
