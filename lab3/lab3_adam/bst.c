@@ -90,7 +90,6 @@ int printLevelOrder(bstNode *root) {
    if (root == NULL) { return -1; }
    bst_queue *q = NULL;
    bstNode* branch = NULL;
-   printf(" ");
    push(&q, root);
    while (branch = pop(&q)) {
       printf("%d ", branch->val);
