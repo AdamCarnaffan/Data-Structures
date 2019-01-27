@@ -11,6 +11,7 @@ typedef struct bstNode bstNode;
 int add_bst(bstNode **root,int new_val);
 int printTreeInOrder(bstNode *root);
 
+
 int add_bst(bstNode **root,int new_val) {
    if (root == NULL) { 
       return -1; 
