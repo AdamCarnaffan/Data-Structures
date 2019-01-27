@@ -17,7 +17,9 @@ typedef struct bst_queueNode bst_queue;
 
 int add_bst(bstNode**, int);
 int printTreeInOrder(bstNode *);
-int level_order_bst(bstNode *);
+int printLevelOrder(bstNode *root);
+int push(bst_queue **targ, bstNode *val);
+bstNode * pop(bst_queue **targ);
 
 int main(void) {
    bstNode *root = NULL;
@@ -28,7 +30,7 @@ int main(void) {
    add_bst(&root,7);
    add_bst(&root,6);
    add_bst(&root,8);
-   //printTreeInOrder(root);
+   printTreeInOrder(root);
    printLevelOrder(root);
    return 0;
 }
@@ -36,7 +38,7 @@ int main(void) {
 int push(bst_queue **targ, bstNode *val) {
    if (targ == NULL) { return -1; }
    if (*targ == NULL) {
-      (*targ) = (bstNode *)malloc(sizeof(bstNode));
+      (*targ) = (bst_queue *)malloc(sizeof(bst_queue));
       (*targ)->val = val;
       (*targ)->next = NULL;
    } else {
