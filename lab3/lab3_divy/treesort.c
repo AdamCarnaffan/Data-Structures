@@ -49,11 +49,11 @@ int printTreeInOrder(bstNode *root) {
 }
 
 int main(void) {
-    int in_value = 0;
-    bstNode *root = NULL;
-    while (scanf("%d", &in_value) != EOF) {
-        add_bst(&root, in_value);
-    }
-    printTreeInOrder(root);
-    return 0;
+   int in_value = 0;
+   bstNode *root = NULL;
+   while (scanf("%d", &in_value) != EOF) {
+      add_bst(&root, in_value);
+   }
+   printTreeInOrder(root);
+   return 0;
 }
