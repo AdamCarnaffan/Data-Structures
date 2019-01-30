@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "queue.h"
 
 struct bstNode {
    int val;
@@ -52,13 +53,9 @@ int printTreeInOrder(bstNode *root) {
    if (root == NULL) {
       return -1;
    }
-   if (root->l != NULL) {
-      printTreeInOrder(root->l);
-   }
+   printTreeInOrder(root->l);
    printf("%d\n", root->val);
-   if (root->r != NULL) {
-      printTreeInOrder(root->r);
-   }
+   printTreeInOrder(root->r);
    return 0;
 }
 
@@ -66,12 +63,18 @@ int printLevelOrder(bstNode *root) {  /* does not work as intended */
    if (root == NULL) {
       return -1;
    }
-   printf("%d ", root->val);
-   if (root->l != NULL) {
-      printLevelOrder(root->l);
-   }
-   if (root->r != NULL) {
-      printLevelOrder(root->r);
+   queue *q = (queue *)malloc(sizeof(queue));
+   bstNode *item = NULL;
+   enqueue(&q, root);
+   while (len_queue(q)) {
+      dequeue(&q, item);
+      printf("%d ", item->val);
+      if (item->l != NULL) {
+         enqueue(&q, item->l);
+      }
+      if (item->r != NULL) {
+         enqueue(&q, item->r);
+      }
    }
    return 0;
 }

@@ -2,102 +2,78 @@
 #include <stdlib.h>
 
 struct queue {
-   int *store;
-   int start;
-   int end;
-   int length;
-   int flipped;  /* -1 = true, 1 = false */
-};
+    int data;
+    struct queue *next;
+}; 
 typedef struct queue queue;
 
-int init_queue(queue **in, int length);
-int enqueue(queue *in, int new_data);
-int dequeue(queue *in);
-int peek(queue *in);
+int enqueue(queue **structure, int new_data);
+int dequeue(queue **structure, int *first);
+int peek(queue *structure);
+int len_queue(queue *structure);
 
-int init_queue(queue **in, int length) {
-   if (in == NULL) {
-      return -1;
-   }
-   *in = (queue *)malloc(sizeof(queue));
-   (*in)->store = (int *)malloc(sizeof(int) * length);
-   (*in)->start = 0;
-   (*in)->end = -1;
-   (*in)->length = length;
-   (*in)->flipped = 1;
-   return 0;
+int enqueue(queue **structure, int new_data) {
+    if (structure == NULL) {
+        return -1;
+    }
+    else if (*structure == NULL) {
+        *structure = (queue *)malloc(sizeof(queue));
+        (*structure)->data = new_data;
+        (*structure)->next = NULL;
+    }
+    else {
+        enqueue(&((*structure)->next), new_data);
+    }
+    return 0;
 }
 
-int enqueue(queue *in, int new_data) {
-   if (in == NULL) {
-      return -1;
-   }
-   else if (((in->end - in->start) * in->flipped) + 1 >= in->length) {
-      return -1;
-   }
-   if (in->end + 1 == in->length) {
-      in->end = 0;
-      in->flipped *= -1;
-   }
-   else {
-      in->end += 1;
-   }
-   (in->store)[in->end] = new_data;
-   return 0;
+int dequeue(queue **structure, int *first) {
+    queue *old_head;
+    if ((structure == NULL) || (*structure == NULL)) {
+        return -1;
+    }
+    else {
+        *first = (*structure)->data;
+        old_head = *structure;
+        *structure = (*structure)->next;
+        free(old_head);
+        old_head = NULL;
+    }
+    return 0;
 }
 
-int dequeue(queue *in) {
-   int first = 0;
-   if (in == NULL) {
-      return -1;
-   }
-   else if ((in->end - in->start) * in->flipped == -1) {
-      return -1;
-   }
-   first = (in->store)[in->start];
-   if (in->start + 1 == in->length) {
-      in->start = 0;
-      in->flipped *= -1;
-   }
-   else {
-      in->start += 1;
-   }
-   return first;
+int peek(queue *structure) {
+    int i = 0;
+    printf("[");
+    while (structure != NULL) {
+        printf("%d,", structure->data);
+        structure = structure->next;
+    }
+    printf("]\n");
+    return 0;
 }
 
-int peek(queue *in) {
-   int i = 0;
-   int amount = in->end - in->start + 1;
-   if (in == NULL) {
-      return -1;
-   }
-   if (in->flipped == -1) {
-      amount = amount * in->flipped - in->length;
-   }
-   printf("[");
-   for (i = in->start; i < in->start + amount; i++) {
-      if (i >= in->length) {
-         i = i - in->length;
-      }
-      printf("%d,", (in->store)[i]);
-   }
-   printf("]\n");
-   return 0;
+int len_queue(queue *structure) {
+    int count = 0;
+    while (structure != NULL) {
+        count += 1;
+        structure = structure->next;
+    }
+    return count;
 }
 
 int main(void) {
-   queue *q = NULL;
-   init_queue(&q, 10);
-   int i = 0;
-   peek(q);
-   for (i = 0; i < 10; i++) {
-      enqueue(q, i);
-      peek(q);
-   }
-   for (i = 0; i < 7; i++) {
-      printf("Dequeued: %d\n", dequeue(q));
-      peek(q);
-   }
-   
-   return 0;
+    queue *q = NULL;
+    int add = 0;
+    int i = 0;
+    while (scanf("%d", &add) != EOF) {
+        enqueue(&q, add);
+    }
+    peek(q);
+    for (i = 0; i < 5; i++) {
+        dequeue(&q, &add);
+        printf("Dequeued: %d\n", add);
+    }
+    peek(q);
+    return 0;
 }

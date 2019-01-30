@@ -2,16 +2,17 @@
 #include <stdlib.h>
 
 struct queue {
-    int data;
+    bstNode *data;
     struct queue *next;
 }; 
 typedef struct queue queue;
 
-int enqueue(queue **structure, int new_data);
-int dequeue(queue **structure, int first);
+int enqueue(queue **structure, bstNode *new_data);
+int dequeue(queue **structure, bstNode *first);
 int peek(queue *structure);
+int len_queue(queue *structure);
 
-int enqueue(queue **structure, int new_data) {
+int enqueue(queue **structure, bstNode new_data) {
     if (structure == NULL) {
         return -1;
     }
@@ -26,15 +27,15 @@ int enqueue(queue **structure, int new_data) {
     return 0;
 }
 
-int dequeue(queue **structure, int first) {
+int dequeue(queue **structure, bstNode *first) {
     queue *old_head;
     if ((structure == NULL) || (*structure == NULL)) {
         return -1;
     }
     else {
-        first = (*structure)->data;
+        *first = (*structure)->data;
         old_head = *structure;
-        *structure = &((*structure)->next);
+        *structure = (*structure)->next;
         free(old_head);
         old_head = NULL;
     }
@@ -45,11 +46,20 @@ int peek(queue *structure) {
     int i = 0;
     printf("[");
     while (structure != NULL) {
-        printf("%d,", structure->data);
+        printf("%d,", structure->data->val);
         structure = structure->next;
     }
     printf("]\n");
     return 0;
+}
+
+int len_queue(queue *structure) {
+    int count = 0;
+    while (structure != NULL) {
+        count += 1;
+        structure = structure->next;
+    }
+    return count;
 }
 
 int main(void) {
@@ -61,9 +71,9 @@ int main(void) {
     }
     peek(q);
     for (i = 0; i < 5; i++) {
-        dequeue(&q, add);
+        dequeue(&q, &add);
         printf("Dequeued: %d\n", add);
     }
-    /* peek(q); */
+    peek(q);
     return 0;
 }
