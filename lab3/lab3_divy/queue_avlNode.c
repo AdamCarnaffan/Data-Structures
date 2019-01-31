@@ -2,17 +2,17 @@
 #include <stdlib.h>
 
 struct queue {
-    bstNode *data;
+    avlNode *data;
     struct queue *next;
 }; 
 typedef struct queue queue;
 
-int enqueue(queue **structure, bstNode *new_data);
-int dequeue(queue **structure, bstNode *first);
+int enqueue(queue **structure, avlNode *new_data);
+int dequeue(queue **structure, avlNode *first);
 int peek(queue *structure);
 int len_queue(queue *structure);
 
-int enqueue(queue **structure, bstNode new_data) {
+int enqueue(queue **structure, avlNode *new_data) {
     if (structure == NULL) {
         return -1;
     }
@@ -27,7 +27,7 @@ int enqueue(queue **structure, bstNode new_data) {
     return 0;
 }
 
-int dequeue(queue **structure, bstNode *first) {
+int dequeue(queue **structure, avlNode *first) {
     queue *old_head;
     if ((structure == NULL) || (*structure == NULL)) {
         return -1;
