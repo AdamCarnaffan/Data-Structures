@@ -58,12 +58,7 @@ int isAVL(avlNode **root) {
    if ((*root)->r != NULL) {
       balance += 1 + isAVL(&((*root)->r));
    }
-   if ((abs(balance) <= 1) && (isAVL(&(*root)->l)) && (isAVL(&(*root)->r)) != -1)  {
-      return 0;
-   }
-   else {
-      return -1;
-   }
+   return balance;
 }
 
 int printTreeInOrder(avlNode *root) {
