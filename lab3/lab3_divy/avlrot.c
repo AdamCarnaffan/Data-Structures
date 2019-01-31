@@ -16,7 +16,6 @@ struct qNode {
 typedef struct qNode qNode;
 
 int add_avl(avlNode **root,int new_val);
-int node_balance(avlNode **root);
 int isAVL(avlNode **root);
 int printTreeInOrder(avlNode *root);
 
@@ -33,11 +32,11 @@ int add_avl(avlNode **root,int new_val) {
       return 0;
    }
    else if (new_val > (*root)->val) {
-      (*root)->balance -= 1;
+      (*root)->balance += 1;
       return add_avl(&((*root)->r), new_val);
    }
    else if (new_val < (*root)->val) {
-      (*root)->balance += 1;
+      (*root)->balance -= 1;
       return add_avl(&((*root)->l), new_val);
    }
    else {
@@ -45,7 +44,7 @@ int add_avl(avlNode **root,int new_val) {
    }
 }
 
-int node_balance(avlNode **root) {
+int isAVL(avlNode **root) {
    int balance = 0;
    if (root == NULL) {
       return -1;
@@ -53,28 +52,19 @@ int node_balance(avlNode **root) {
    else if (*root == NULL) {
       return 0;
    }
-   balance = -1 + node_balance(&((*root)->l));
-   balance += 1 + node_balance(&((*root)->r));
-   return balance;
-}
-
-int isAVL(avlNode **root) {
-   int balance = 0;
-   if (root == NULL) {
-      return -1;
+   if ((*root)->l != NULL) {
+      balance = -1 + isAVL(&((*root)->l));
    }
-   balance = node_balance(root);
+   if ((*root)->r != NULL) {
+      balance += 1 + isAVL(&((*root)->r));
+   }
    if ((balance < -1) || (balance > 1)) {
       return -1;
    }
-   else if (*root != NULL) {
-      balance = isAVL(&((*root)->l));
-      balance = isAVL(&((*root)->r));
+   else {
+      return balance;
    }
-   return balance;
 }
-
-
 
 int printTreeInOrder(avlNode *root) {
    if (root == NULL ) {

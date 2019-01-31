@@ -5,7 +5,7 @@ def GetPlayerPositions(board, player):  # location of all player pieces
    for i in range(0, len(board), 1):
       if board[i] >= player:
          positions += [i]
-    return positions
+   return positions
 
 def GetPieceLegalMoves(board, position):  # legal moves of piece at position
    if position < 0 and position > 63 or type(board) != list:
@@ -18,24 +18,30 @@ def GetPieceLegalMoves(board, position):  # legal moves of piece at position
       player = 20
       opponent = 10
    peice_type = int(str(peice)[1])  # we now know player and type of piece
-   row  = (position + 1)//8
-   if peice_type == 0:  # pawn moves
-      if player == 10:
-         for i in range(position + 7, position + 10, 1):
-            if i > 63:
-               break
-            if board[i] == 0 or str(i)[0] == '2':
-               moves += [i]
-      else:
-         for i in range(position - 7, position - 10, -1):
-            if i < 0:
-               break
-            if board[i] == 0 or str(i)[0] == '1':
-               moves += [i]
-      return moves
-   elif peice_type == 1:  # knight moves
-      for i in range(position-2, position + 3, 2):
-         if i < 0 or i > 63:
-            continue
-         
-        
+   pass
+
+def GetPawnMoves(board, position, player):
+   factor = 1  
+   opponent = 2
+   if player == 20:
+      factor = -1
+      opponent = 1 
+   # remove line 24 -> 28 in all get functions and pass via call if it's in all of them 
+   row = position//8 - factor
+   moves = []
+   for i in range(position + (7*factor), positon + (10*factor), i += factor):
+      if i < 0 or i > 63 or i//8 != row:
+         continue
+      elif board[i] == 0 or int(str(board[i])[0]) == opponent:
+         moves += [i]
+   return moves
+
+def GetKnightMoves(board, position, player):
+   factor = 1
+   opponent = 2
+   if player == 20:
+      factor = -1
+      opponent = 1  
+   for i in range(positon)     # check up 2 left right, up 1 left right 2, inverse for bottom
+def tester():
+   
