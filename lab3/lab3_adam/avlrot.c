@@ -27,7 +27,8 @@ int main(void) {
    }
    printTreeInOrder(root);
    printf("Balance is: %d\n", isAVL(&root));
-   dblrotate(&root, 1);
+   rotate(&(root->r->r), 0);
+   rotate(&root, 0);
    printTreeInOrder(root);
    printf("Balance is: %d\n", isAVL(&root));
    return 0;
