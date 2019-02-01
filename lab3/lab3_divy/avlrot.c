@@ -9,18 +9,20 @@ struct avlNode {
 };
 typedef struct avlNode avlNode;
 
-struct qNode {
+struct qNode {  /* never used */
    avlNode *pval;
    struct qNode *nxt;
 };
 typedef struct qNode qNode;
 
-int add_avl(avlNode **root,int new_val);
-int node_balance(avlNode **root);
-int isAVL(avlNode **root);
+int add_avl(avlNode **root, int new_val);
 int printTreeInOrder(avlNode *root);
+int node_balance(avlNode **root);  /* helper function for: function isAVL */  
+int isAVL(avlNode **root);
+int rotate(avlNode **root, unsigned int Left0_Right1);
 
-int add_avl(avlNode **root,int new_val) {
+
+int add_avl(avlNode **root,int new_val) {  /* need to add balance checks */ 
    if (root == NULL) { 
       return -1; 
    }
@@ -45,38 +47,6 @@ int add_avl(avlNode **root,int new_val) {
    }
 }
 
-int node_balance(avlNode **root) {
-   int balance = 0;
-   if (root == NULL) {
-      return -1;
-   }
-   else if (*root == NULL) {
-      return 0;
-   }
-   if ((*root)->l != NULL) {
-      balance = -1 + node_balance(&((*root)->l));
-   }
-   if ((*root)->r != NULL) {
-      balance += 1 + node_balance(&((*root)->r));
-   }
-   return balance;
-}
-
-int isAVL(avlNode **root) {
-   int lr = 0;
-   if (root == NULL) {
-      return -1;
-   } else if (*root == NULL) {
-      return 0;
-   }
-   lr = node_balance(root);
-   if ((abs(lr) <= 1) && (isAVL(&((*root)->l)) == 0) && (isAVL(&((*root)->r)) == 0)) {
-      return 0;
-   } else {
-      return -1;
-   }
-}
-
 int printTreeInOrder(avlNode *root) {
    if (root == NULL ) {
       return -1;
@@ -86,6 +56,58 @@ int printTreeInOrder(avlNode *root) {
    printTreeInOrder(root->r);
    return 0;
 }
+
+int node_balance(avlNode **root) { 
+   int balance = 0;
+   if (root == NULL) {
+      return -1;
+   }
+   else if (*root == NULL) {
+      return 0;
+   }
+   if ((*root)->l != NULL) {
+      balance = -1 - abs(node_balance(&((*root)->l)));
+   }
+   if ((*root)->r != NULL) {
+      balance += 1 + abs(node_balance(&((*root)->r)));
+   }
+   return balance;
+}
+
+int isAVL(avlNode **root) {
+   int lr = 0;
+   if (root == NULL) {
+      return -1;
+   } 
+   else if (*root == NULL) {
+      return 0;
+   }
+   lr = node_balance(root);
+   if ((abs(lr) <= 1) && (isAVL(&((*root)->l)) == 0) && (isAVL(&((*root)->r)) == 0)) {
+      return 0;
+   } 
+   else {
+      return -1;
+   }
+}
+
+int rotate(avlNode **root, unsigned int Left0_Right1) {
+   avlNode *b, *c = NULL;
+   if ((root == NULL) || (*root == NULL)) {
+      return -1;
+   }
+   if (Left0_Right1 == 0) {
+      if ((*root)->r != NULL) {  /* assigning pointers */
+         b = (*root)->r;
+         if (b->r != NULL) {
+            c = b->r;
+         }
+      }
+
+   }
+   
+}
+
 
 int main(void) {
    avlNode *root = NULL;

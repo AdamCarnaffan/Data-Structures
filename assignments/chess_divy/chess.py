@@ -41,7 +41,13 @@ def GetKnightMoves(board, position, player):
    opponent = 2
    if player == 20:
       factor = -1
-      opponent = 1  
-   for i in range(positon)     # check up 2 left right, up 1 left right 2, inverse for bottom
+      opponent = 1
+   row = position//8
+   for i in range(position -16, position + 17, 8):  # check up 2 left right, up 1 left right 2, inverse for bottom
+      if i == abs(position + 16):
+         if i - 1 
+
+
+
 def tester():
-   
+   return True  
