@@ -16,6 +16,7 @@ int isAVL(avlNode **);
 int add_avl(avlNode **,int);
 int rotate(avlNode **, unsigned int);
 int printTreeInOrder(avlNode *);
+int rotate(avlNode **, unsigned int);
 
 int main(void) {
    avlNode *root = NULL;
@@ -25,27 +26,28 @@ int main(void) {
    }
    printTreeInOrder(root);
    printf("Balance is: %d\n", isAVL(&root));
+   rotate(&root, 0);
+   printTreeInOrder(root);
+   printf("Balance is: %d\n", isAVL(&root));
    return 0;
 }
 
 int add_avl(avlNode **root,int val) {
    if (root == NULL) { 
       return -1; 
-   }
-   else if (*root == NULL) {
+   } 
+   if (*root == NULL) {
       *root = (avlNode *)malloc(sizeof(avlNode));
       (*root)->val = val;
       (*root)->l = NULL;
       (*root)->r = NULL;
       (*root)->balance = 0; 
       return 0;
-   }
-   else if (val > (*root)->val) {
-      (*root)->balance += 1;
+   } else if (val > (*root)->val) {
+      (*root)->balance = (*root)->balance + 1;
       return add_avl(&((*root)->r), val);
-   }
-   else if (val < (*root)->val) {
-      (*root)->balance -= 1;
+   } else if (val < (*root)->val) {
+      (*root)->balance = (*root)->balance - 1;
       return add_avl(&((*root)->l), val);
    }
    else {
@@ -82,6 +84,11 @@ int find_depth(avlNode *root) {
    return final + 1;
 }
 
+int compute_balance(avlNode *root) {
+   root->balance = get_depth(root->r) - get_depth(root->l);
+   return 0;
+}
+
 int isAVL(avlNode **root) {
    int l, r, final;
    if (root == NULL) { return -1; }
@@ -96,5 +103,34 @@ int isAVL(avlNode **root) {
          return -1;
       }
    }
+   return 0;
+}
+
+int rotate(avlNode **root, unsigned int Left0_Right1) {
+   avlNode *branch = NULL; /* will be new root */
+   avlNode *save = NULL;
+   avlNode *org = *root;
+   if (root == NULL) { return -1; }
+   if (Left0_Right1 == 0) {
+      if ((*root)->l == NULL) {
+         return -1;
+      } 
+      branch = (*root)->l;
+      save = branch->r;
+      (*root)->l = save;
+      branch->r = (*root);
+      (*root) = branch;
+   } else { 
+      if ((*root)->r == NULL) {
+         return -1;
+      }
+      branch = (*root)->r; 
+      save = branch->l;
+      (*root)->r = save;
+      branch->l = (*root);
+      (*root) = branch;
+   }
+   compute_balance(branch);
+   compute_balance(org);
    return 0;
 }
