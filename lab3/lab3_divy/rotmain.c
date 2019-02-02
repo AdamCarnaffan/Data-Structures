@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "avlrot.h"
 
+/* inputs: 100 200 150 work to balance via majorRminorL */
+
 int main(void) {
    avlNode *root = NULL;
    int add = 0;
@@ -12,8 +14,8 @@ int main(void) {
    printf("Balance is: %d\n", isAVL(&root));
    printTreeInOrder(root);
    printf("\n   NEW ORDER:\n\n");
-   dblrotate(&root, 1); 
-   printf("Balance is: %d, root nxt: %d\n", isAVL(&root), root->r->val);
+   dblrotate(&(root), 1); 
+   printf("Balance is: %d\n", isAVL(&root));
    printTreeInOrder(root);
    printf("\nEND MAIN\n");
    return 0;
