@@ -17,6 +17,7 @@ int add_avl(avlNode **,int);
 int rotate(avlNode **, unsigned int);
 int printTreeInOrder(avlNode *);
 int rotate(avlNode **, unsigned int);
+int dblrotate(avlNode **,unsigned int);
 
 int main(void) {
    avlNode *root = NULL;
@@ -26,6 +27,7 @@ int main(void) {
    }
    printTreeInOrder(root);
    printf("Balance is: %d\n", isAVL(&root));
+   rotate(&(root->r->r), 0);
    rotate(&root, 0);
    printTreeInOrder(root);
    printf("Balance is: %d\n", isAVL(&root));
@@ -111,19 +113,15 @@ int rotate(avlNode **root, unsigned int Left0_Right1) {
    avlNode *save = NULL;
    avlNode *org = *root;
    if (root == NULL) { return -1; }
-   if (Left0_Right1 == 0) {
-      if ((*root)->l == NULL) {
-         return -1;
-      } 
+   if (Left0_Right1 == 1) {
+      if ((*root)->l == NULL) { return -1; }
       branch = (*root)->l;
       save = branch->r;
       (*root)->l = save;
       branch->r = (*root);
       (*root) = branch;
    } else { 
-      if ((*root)->r == NULL) {
-         return -1;
-      }
+      if ((*root)->r == NULL) { return -1; }
       branch = (*root)->r; 
       save = branch->l;
       (*root)->r = save;
@@ -132,5 +130,19 @@ int rotate(avlNode **root, unsigned int Left0_Right1) {
    }
    compute_balance(branch);
    compute_balance(org);
+   return 0;
+}
+
+int dblrotate(avlNode **root,unsigned int MajLMinR0_MajRMinL1) {
+   if (root == NULL) { return -1; }
+   if (MajLMinR0_MajRMinL1 == 1) {
+      if ((*root)->r == NULL) { return -1; }
+      rotate(&((*root)->r), 1);
+      rotate(root, 0);
+   } else {
+      if ((*root)->l == NULL) { return -1; }
+      rotate(&((*root)->l), 0);
+      rotate(root, 1);
+   }
    return 0;
 }
