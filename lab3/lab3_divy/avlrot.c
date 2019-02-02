@@ -17,9 +17,10 @@ typedef struct qNode qNode;
 
 int add_avl(avlNode **root, int new_val);
 int printTreeInOrder(avlNode *root);
-int node_balance(avlNode **root);  /* helper function for: function isAVL */  
+int node_height(avlNode *root);  /* height finder */  
 int isAVL(avlNode **root);
 int rotate(avlNode **root, unsigned int Left0_Right1);
+int dblrotate(avlNode **root,unsigned int MajLMinR0_MajRMinL1);
 
 
 int add_avl(avlNode **root,int new_val) {  /* need to add balance checks */ 
@@ -35,14 +36,12 @@ int add_avl(avlNode **root,int new_val) {  /* need to add balance checks */
       return 0;
    }
    else if (new_val > (*root)->val) {
-      (*root)->balance += 1;
-      printf("root: %d\n", (*root)->balance);
       add_avl(&((*root)->r), new_val);
+      (*root)->balance = node_height(*root);
    }
    else if (new_val < (*root)->val) {
-      (*root)->balance -= 1;
-      printf("root: %d\n", (*root)->balance);
       add_avl(&((*root)->l), new_val);
+      (*root)->balance = node_height(*root);
    }
    else if (new_val == (*root)->val) {
       return -1;
@@ -62,21 +61,18 @@ int printTreeInOrder(avlNode *root) {
    return 0;
 }
 
-int node_depth(avlNode **root) { 
-   int depth = 0;
+int node_height(avlNode *root) { 
+   int l = 0, r = 0;
    if (root == NULL) {
-      return -1;
-   }
-   else if (*root == NULL) {
       return 0;
    }
-   if ((*root)->l != NULL) {
-      depth = -1 - abs(node_depth(&((*root)->l)));
+   if (root->l != NULL) {
+      l = 1 + abs(node_height(root->l));
    }
-   if ((*root)->r != NULL) {
-      depth += 1 + abs(node_depth(&((*root)->r)));
+   if (root->r != NULL) {
+      r = 1 + abs(node_height(root->r));
    }
-   return depth;
+   return r-l;
 }
 
 int isAVL(avlNode **root) {
@@ -87,8 +83,8 @@ int isAVL(avlNode **root) {
    else if (*root == NULL) {
       return 0;
    }
-   lr = node_depth(root);
-   if ((abs(lr) <= 1) && (isAVL(&((*root)->l)) == 0) && (isAVL(&((*root)->r)) == 0)) {
+   (*root)->balance = node_height(*root);
+   if ((abs((*root)->balance) <= 1) && (isAVL(&((*root)->l)) == 0) && (isAVL(&((*root)->r)) == 0)) {
       return 0;
    } 
    else {
@@ -97,13 +93,45 @@ int isAVL(avlNode **root) {
 }
 
 int rotate(avlNode **root, unsigned int Left0_Right1) {
-   
+   avlNode *b = NULL;
    if ((root == NULL) || (*root == NULL)) {
       return -1;
    }
-   
+   if (Left0_Right1 == 0) {
+      b = (*root)->r;
+      (*root)->r = b->l;
+      b->l = *root;
+      *root = b;
+   }
+   else if (Left0_Right1 == 1) {
+      b = (*root)->l;
+      (*root)->l = b->r;
+      b->r = *root;
+      *root = b;
+   }
+   else {
+      return -1;
+   }
+   return 0;
 }
 
+int dblrotate(avlNode **root,unsigned int MajLMinR0_MajRMinL1) {
+   if ((root == NULL) || (*root == NULL)) {
+      return -1;
+   }
+   else if (MajLMinR0_MajRMinL1 == 0) {
+      rotate(&((*root)->l), 0);
+      rotate(&(*root), 1);
+   }
+   else if (MajLMinR0_MajRMinL1 == 1) {
+      rotate(&((*root)->r), 1);
+      rotate(&(*root), 0);
+   }
+   else {
+      return -1;
+   }
+   return 0;
+}
 
 int main(void) {
    avlNode *root = NULL;
@@ -111,7 +139,13 @@ int main(void) {
    while (scanf("%d", &add) != EOF) {
       add_avl(&root, add);
    }
+   printf("\n   POST ORDER:\n\n");
+   printf("Balance is: %d\n", isAVL(&root));
    printTreeInOrder(root);
-   printf("Balance is: %d", isAVL(&root));
+   printf("\n   NEW ORDER:\n\n");
+   dblrotate(&root, 1); 
+   printf("Balance is: %d, root nxt: %d\n", isAVL(&root), root->r->val);
+   printTreeInOrder(root);
+   printf("\nEND MAIN\n");
    return 0;
 }
