@@ -1,7 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "avlrot.h"
 
+
+struct avlNode {
+   int balance;  /* -1 Left, 0 balanced, +1 Right */
+   int val;
+   struct avlNode *l;
+   struct avlNode *r;
+};
+typedef struct avlNode avlNode;
 
 int add_avl(avlNode **root,int new_val) {
    if (root == NULL) { 
@@ -101,7 +108,7 @@ int rotate(avlNode **root, unsigned int Left0_Right1) {
    return 0;
 }
 
-int dblrotate(avlNode **root,unsigned int MajLMinR0_MajRMinL1) {
+int dblrotate(avlNode **root, unsigned int MajLMinR0_MajRMinL1) {
    if ((root == NULL) || (*root == NULL)) {
       return -1;
    }

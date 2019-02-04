@@ -78,6 +78,5 @@ int main(void) {
    printf("INFO: you entered %d items\n",n);
    rvalue=llnode_print_from_tail(input_list);
    if ( !(rvalue==0) ) { printf("ERR: llnode_print returned an error\n"); }
-
    return 0;
 }
