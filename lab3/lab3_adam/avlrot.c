@@ -1,38 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-struct avlNode {
-   int balance; /* -1 Left, 0 balanced, +1 Right */
-   int val;
-   struct avlNode *l;
-   struct avlNode *r;
-};
-typedef struct avlNode avlNode;
-
-int get_depth(avlNode *);
-int find_depth(avlNode *);
-int measure_balance(avlNode *);
-int isAVL(avlNode **);
-int add_avl(avlNode **,int);
-int rotate(avlNode **, unsigned int);
-int printTreeInOrder(avlNode *);
-int rotate(avlNode **, unsigned int);
-int dblrotate(avlNode **,unsigned int);
-
-int main(void) {
-   avlNode *root = NULL;
-   int add = 0;
-   while (scanf("%d", &add) != EOF) {
-      add_avl(&root, add);
-   }
-   printTreeInOrder(root);
-   printf("Balance is: %d\n", isAVL(&root));
-   rotate(&(root->r->r), 0);
-   rotate(&root, 0);
-   printTreeInOrder(root);
-   printf("Balance is: %d\n", isAVL(&root));
-   return 0;
-}
+#include "avlrot.h"
 
 int add_avl(avlNode **root,int val) {
    if (root == NULL) { 
