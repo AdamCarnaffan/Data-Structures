@@ -33,8 +33,8 @@ class Model:
       self.optimizer = tf.train.AdamOptimizer().minimize(loss)
       self.var_init = tf.global_variables_initializer()
 
-   def predict_one(self, state, sess):
-      return sess.run(self.logits, feed_dict={self.states: np.reshape(state, [1, self.num_states])})
+   def predict_one(self, state, moves, sess):
+      return sess.run(self.logits, feed_dict={self.states: np.reshape(state, [1, self.num_states]), self.actions: moves})
 
    def predict_batch(self, states, sess):
       return sess.run(self.logits, feed_dict={self.states: states})
@@ -170,8 +170,9 @@ class TicTacToe:
             if self.process_turn(move)[2]:
                win = self.playing
                done = True
-         if win == 0 and self.movesMade > 8:
+         if win <= 0 and self.movesMade > 8:
             self.winner = -1
+            done = True
          elif win != 0:
             self.winner = win
             done = True
@@ -267,8 +268,7 @@ class Runner:
       while True:
          if self.render:
             self.env.display()
-         action = self.choose_action(state)
-         print(action)
+         action = self.choose_action(state, self.env.get_open_moves())
          next_state, reward, done = self.env.process_turn(action)
 
          if next_state[0] == 0:
@@ -277,10 +277,8 @@ class Runner:
             reward += 1000*(5-self.steps)
          elif next_state[0] == 2:
             reward -= 1000
-         elif next_state[0] == -1:
+         else:
             reward = 0
-         elif next_state[0] == -2:
-            reward -= 10000
 
          if done:
             next_state = None
@@ -306,19 +304,16 @@ class Runner:
       return True
 
 
-   def choose_action(self, state):
+   def choose_action(self, state, moves):
       if random.random() < self.eps:
-         return random.randint(0, self.model.num_actions)
+         return moves[random.randint(0, len(moves))]
       else:
-         return np.argmax(self.model.predict_one(state, self.sess))
+         return np.argmax(self.model.predict_one(state, moves, self.sess))
 
    def replay(self):
       batch = self.memory.sample(self.model.batch_size)
-      if len(batch) < 10:
-         return
       states = np.array([val[0] for val in batch])
       next_states = np.array([(np.zeros(self.model.num_states) if val[3] is None else val[3]) for val in batch])
-
       # Predict Q(s, a)
       q_s_a = self.model.predict_batch(states, self.sess)
       # Predict Q(s', a') -> for dat algebra below
@@ -335,7 +330,7 @@ class Runner:
             current_q[action] = reward
          else:
             current_q[action] = reward + GAMMA * np.amax(q_s_a_d[i])
-         x[i] = state.winner
+         x[i] = state[0]
          y[i] = current_q
       self.model.train_batch(self.sess, x, y)
 
@@ -345,19 +340,23 @@ if __name__ == "__main__":
    num_states = 10
    num_actions = 9
 
-   model = Model(num_states, num_actions, 5)
+   model = Model(num_states, num_actions, 55)
    mem = Memory(50000)
 
    with tf.Session() as sess:
       sess.run(model.var_init)
+      saver = tf.train.Saver()
+      saver.restore(sess, "./tmp/ttt_mi.ckpt")
       gr = Runner(sess, model, env, mem, 1, 0.1, LAMBDA)
-      num_episodes = 1
+      num_episodes = 10
       cnt = 0
       while cnt < num_episodes:
          if (cnt % 10 == 0):
             print("Episode {} of {}".format(cnt+1, num_episodes))
          gr.run()
          cnt += 1
+      save_path = saver.save(sess, "./tmp/ttt_mi.ckpt")
+      print("Model Saved to: %s" % save_path)
       plt.plot(gr.rewards)
       plt.show()
       plt.close("all")

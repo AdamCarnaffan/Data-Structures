@@ -44,8 +44,8 @@ int main(void) {
    int *pr = NULL;
    int size,c = 0;
    HeapType *root = (HeapType *)malloc(sizeof(HeapType));
-   initHeap(root, 9);
-   for (c=0; c<9; c++) {
+   initHeap(root, 10);
+   for (c=0; c<10; c++) {
       addHeap(root, c);
       printf("ADDED %d\n", c);
       disp_Heap(root);
@@ -126,6 +126,7 @@ int inorder(HeapType *pHeap, int **output, int *o_size) {
          last = 0;
       } else if (last == 0) {
          if (getRightIndex(current) <= pHeap->end) {
+            printf("ASD -> %d\n", (pHeap->store)[current-1]);
             travFrom = current;
             current = getRightIndex(current);
             last = 1;
