@@ -13,6 +13,8 @@ int preorder(HeapType *pHeap, int **output, int *o_size);
 int postorder(HeapType *pHeap, int **output, int *o_size);
 int addHeap(HeapType *pHeap, int key);
 int findHeap(HeapType *pHeap, int key);
+int delHeap(HeapType *pHeap, int *key);
+int max(int a, int b);
 int disp_Heap(HeapType *pHeap);
 int disp_array(int *array, int size);
 
@@ -29,7 +31,7 @@ int initHeap(HeapType *pHeap, int size) {
    return 0;
 }
 
-int inorder(HeapType *pHeap, int **output, int *o_size) {  /* NLR */
+int inorder(HeapType *pHeap, int **output, int *o_size) {  /* LNR */
    int index = 0, node = 0, counter = 0, side = 1, depth = 1; /* left = 1, right = 2 */
    if (pHeap == NULL) {
       return -1;
@@ -175,8 +177,8 @@ int addHeap(HeapType *pHeap, int key) {
    return 0;
 }
 
-int findHeap(HeapType *pHeap, int key) {
-   int index = 0, c1 = 0, c2 = 0, side = 1, node = 0;
+int findHeap(HeapType *pHeap, int key) { 
+   int index = 0, side = 1, node = 0;
    if (pHeap == NULL) {
       return -1;
    }
@@ -184,12 +186,36 @@ int findHeap(HeapType *pHeap, int key) {
       if (node == 1) {
          continue;
       }
-      while ((2*index + side < pHeap->end) {
-         ( key > pHeap->store)[2*index + side]) {
-         index = 2*index + side;
+      while (2*index + side < pHeap->end){ 
+         if (key > (pHeap->store)[2*index + side]) {
+            index = 2*index + side;
+            if (side % 2 == 0) {
+               side = 1;
+            }         
+         }
       }
-      if (key == )
+      
+   return 0;
+}
+
+int delHeap(HeapType *pHeap, int *key) {
+   int l = 0, r = 0, index = 0, check = 0;
+   if (pHeap == NULL) {
+      return -1;
    }
+   while (2*index + 1 < pHeap->end) {
+      if (2*index + 1 < pHeap->end) {
+         l = 2*index + 1;
+         check += 1;
+      }
+      if (2*index + 2 < pHeap->end) {
+         r = 2*index + 2;
+         check += 1;
+      }
+      if (check == 2) {
+      }
+   }
+   return 0;
 }
 
 int disp_Heap(HeapType *pHeap) {
