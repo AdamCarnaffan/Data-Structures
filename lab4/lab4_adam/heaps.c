@@ -8,12 +8,12 @@ typedef struct {
    unsigned int end;
 } HeapType;
 
-struct queue {
+struct stack {
    int val;
-   struct queue *next;
+   struct stack *next;
 };
 
-typedef struct queue queue;
+typedef struct stack stack;
 
 
 int initHeap(HeapType *,int);
@@ -79,20 +79,17 @@ int main(void) {
    return 0;
 }
 
-int push(queue **root, int val) {
+int push(stack **root, int val) {
+   stack *cur = *root;
    if (root == NULL) {
       return -1;
    }
-   if (*root != NULL) {
-      return push(root, val);
-   } else {
-      *root = (queue *)malloc(sizeof(queue));
-      (*root)->val = val;
-      (*root)->next = NULL;
-   }
+   *root = (stack *)malloc(sizeof(stack));
+   (*root)->val = val;
+   (*root)->next = cur;
 }
 
-int pop(queue **root, int *ret) {
+int pop(stack **root, int *ret) {
    if (root == NULL) {
       return -1;
    } else if (*root == NULL) {
@@ -116,9 +113,23 @@ int initHeap(HeapType *pHeap, int size) {
 }
 
 int preorder(HeapType *pHeap, int **output, int *o_size) { /* NLR */
+   int c,ind = 0;
    if (output == NULL || pHeap == NULL || o_size == NULL) { return -1; }
    initOutArray(pHeap->end, output, o_size);
-   
+   stack *s = NULL;
+   push(&s, 1);
+   for (c=0; c<pHeap->end; c++) {
+      if (pop(&s, &ind) == -1) {
+         break;
+      }
+      (*output)[c] = (pHeap->store)[ind-1];
+      if (getRightIndex(ind) <= pHeap->end) {
+         push(&s, getRightIndex(ind));
+      }
+      if (getLeftIndex(ind) <= pHeap->end) {
+         push(&s, getLeftIndex(ind));
+      }
+   }
    return 0;
 }
 
@@ -167,6 +178,27 @@ int inorder(HeapType *pHeap, int **output, int *o_size) {
    return 0;
 }
 
+int postorder(HeapType *pHeap, int **output, int *o_size) { /* LRN */
+   int c,ind = 0;
+   if (output == NULL || pHeap == NULL || o_size == NULL) { return -1; }
+   initOutArray(pHeap->end, output, o_size);
+   stack *s = NULL;
+   push(&s, 1);
+   for (c=0; c<pHeap->end; c++) {
+      if (pop(&s, &ind) == -1) {
+         break;
+      }
+      (*output)[c] = (pHeap->store)[ind-1];
+      if (getRightIndex(ind) <= pHeap->end) {
+         push(&s, getRightIndex(ind));
+      }
+      if (getLeftIndex(ind) <= pHeap->end) {
+         push(&s, getLeftIndex(ind));
+      }
+   }
+   return 0;
+}
+
 int expp(int val, int power) {
    int c, ret = 1;
    if (power == 0) { return 1; }
@@ -176,23 +208,7 @@ int expp(int val, int power) {
    return ret;
 }
 
-int postorder(HeapType *pHeap, int **output, int *o_size) { /* LRN */
-   int c = 1, x = 0, val = 0, distance = 0;
-   int depth = 0,dp = 0;
-   int dTrial = 1;
-   int ind = 0;
-   int step = 1;
-   int btmovr = 0;
-   if (output == NULL || pHeap == NULL || o_size == NULL) { return -1; }
-   initOutArray(pHeap->end, output, o_size);
-   while (c*2 <= pHeap->end) {
-      c *= 2;
-      depth++;
-   }
-   dp = expp(2, depth);
-   
-   return 0;
-}
+
 
 int print(int val) {
    printf("DEBUG -> %d\n", val);
