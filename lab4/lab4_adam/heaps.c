@@ -27,6 +27,7 @@ int getParentIndex(int);
 int getLeftIndex(int);
 int getRightIndex(int);
 int print(int);
+int expp(int, int);
 
 int disp_Heap(HeapType *pHeap) {
    int i = 0;
@@ -45,8 +46,8 @@ int main(void) {
    int *pr = NULL;
    int size,c = 0;
    HeapType *root = (HeapType *)malloc(sizeof(HeapType));
-   initHeap(root, 10);
-   for (c=0; c<10; c++) {
+   initHeap(root, 15);
+   for (c=0; c<15; c++) {
       addHeap(root, c);
       printf("ADDED %d\n", c);
       disp_Heap(root);
@@ -109,49 +110,57 @@ int initHeap(HeapType *pHeap, int size) {
 }
 
 int inorder(HeapType *pHeap, int **output, int *o_size) {
-   int c = 1;
-   int current = 1;
-   int travFrom = 1;
-   int lastParent = 1;
-   int last = -1; /* -1 for left, 0 for parent, 1 for right */
-   int added;
+   int c = 1, x = 0, val = 0, distance = 0;
+   int depth = 0,dp = 0;
+   int dTrial = 1;
+   int ind = 0;
+   int step = 1;
+   int btmovr = 0;
    if (output == NULL || pHeap == NULL || o_size == NULL) { return -1; }
    initOutArray(pHeap->end, output, o_size);
-   while (getLeftIndex(current) <= pHeap->end) {
-      current = getLeftIndex(current);
+   while (c*2 <= pHeap->end) {
+      c *= 2;
+      depth++;
    }
-   print(getParentIndex(5));
-   travFrom = getParentIndex(current) + 1;
-   (*output)[0] = (pHeap->store)[current-1];
-   for (c=1; c < pHeap->end; c++) {
-      if (last == -1) {
-         current = (int)(current/2);
-         travFrom = current;
-         last = 0;
-      } else if (last == 0) {
-         if (getRightIndex(current) <= pHeap->end) {
-            travFrom = current;
-            current = getRightIndex(current);
-            last = 1;
-            if (getLeftIndex(current) <= pHeap->end) {
-               lastParent = current;
-               while (getLeftIndex(current) <= pHeap->end) {
-                  current = getLeftIndex(current);
-               }
-               last = -1;
-            }
-         } else {
-            current = (int)(travFrom/2);
-            travFrom = current;
-         }
-      } else {
-         current = (int)(travFrom/2);
-         last = 0;
+   dp = expp(2, depth);
+   for (c=0; c < pHeap->end; c++) {
+      val = c + distance;
+      if (btmovr == 1) { distance++; }
+      x = 0;
+      step = expp(2, x+1);
+      dTrial = expp(2, x) - 1;
+      while (val % step != dTrial) {
+         x++;
+         step = expp(2, x+1);
+         dTrial = expp(2, x) - 1;
       }
-      added = (pHeap->store)[current-1];
-      (*output)[c] = (pHeap->store)[current-1];
+      ind = val/step + dp/(expp(2, x));
+      if (ind > pHeap->end) {
+         btmovr = 1;
+         val = val + 1;
+         distance = 2;
+         x = 0;
+         step = expp(2, x+1);
+         dTrial = expp(2, x) - 1;
+         while (val % step != dTrial) {
+            x++;
+            step = expp(2, x+1);
+            dTrial = expp(2, x) - 1;
+         }
+         ind = val/step + dp/(expp(2, x));
+      }
+      (*output)[c] = (pHeap->store)[ind-1];
    }
    return 0;
+}
+
+int expp(int val, int power) {
+   int c, ret = 1;
+   if (power == 0) { return 1; }
+   for (c=0; c < power; c++) {
+      ret = ret*val;
+   }
+   return ret;
 }
 
 int postorder(HeapType *pHeap, int **output, int *o_size) {
