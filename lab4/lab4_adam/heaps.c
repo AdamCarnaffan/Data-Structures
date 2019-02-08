@@ -183,18 +183,24 @@ int postorder(HeapType *pHeap, int **output, int *o_size) { /* LRN */
    if (output == NULL || pHeap == NULL || o_size == NULL) { return -1; }
    initOutArray(pHeap->end, output, o_size);
    stack *s = NULL;
+   stack *pr = NULL;
    push(&s, 1);
    for (c=0; c<pHeap->end; c++) {
       if (pop(&s, &ind) == -1) {
          break;
       }
-      (*output)[c] = (pHeap->store)[ind-1];
-      if (getRightIndex(ind) <= pHeap->end) {
-         push(&s, getRightIndex(ind));
-      }
+      push(&pr, (pHeap->store)[ind-1]);
       if (getLeftIndex(ind) <= pHeap->end) {
          push(&s, getLeftIndex(ind));
       }
+      if (getRightIndex(ind) <= pHeap->end) {
+         push(&s, getRightIndex(ind));
+      }
+   }
+   c = 0;
+   while (pop(&pr, &ind) != -1) {
+      (*output)[c] = ind;
+      c++;
    }
    return 0;
 }
