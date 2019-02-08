@@ -37,9 +37,9 @@ int initHeap(HeapType *pHeap, int size) {
 
 int preorder(HeapType *pHeap, int **output, int *o_size) { /* NLR */
    int c,ind = 0;
+   stack *s = NULL;
    if (output == NULL || pHeap == NULL || o_size == NULL) { return -1; }
    initOutArray(pHeap->end, output, o_size);
-   stack *s = NULL;
    push(&s, 1);
    for (c=0; c<pHeap->end; c++) {
       if (pop(&s, &ind) == -1) {
@@ -103,10 +103,10 @@ int inorder(HeapType *pHeap, int **output, int *o_size) {
 
 int postorder(HeapType *pHeap, int **output, int *o_size) { /* LRN */
    int c,ind = 0;
-   if (output == NULL || pHeap == NULL || o_size == NULL) { return -1; }
-   initOutArray(pHeap->end, output, o_size);
    stack *s = NULL;
    stack *pr = NULL;
+   if (output == NULL || pHeap == NULL || o_size == NULL) { return -1; }
+   initOutArray(pHeap->end, output, o_size);
    push(&s, 1);
    for (c=0; c<pHeap->end; c++) {
       if (pop(&s, &ind) == -1) {
