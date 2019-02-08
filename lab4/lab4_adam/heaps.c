@@ -21,6 +21,7 @@ int initOutArray(int, int **, int *);
 int inorder(HeapType *, int **, int *);
 int preorder(HeapType *, int **, int *);
 int postorder(HeapType *, int **, int *);
+int findHeap(HeapType *, int);
 int addHeap(HeapType *, int);
 int shiftValue(HeapType *, int);
 int getParentIndex(int);
