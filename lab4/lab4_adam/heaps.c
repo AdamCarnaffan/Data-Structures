@@ -27,16 +27,29 @@ int getParentIndex(int);
 int getLeftIndex(int);
 int getRightIndex(int);
 
+int disp_Heap(HeapType *pHeap) {
+   int i = 0;
+   printf("[");
+   for (i = 0; i < pHeap->end; i++) {
+      if (i == pHeap->end - 1) {
+         printf("%d", (pHeap->store)[i]);
+         continue;
+      }
+      printf("%d,", (pHeap->store)[i]);
+   }
+   printf("]\n");
+}
+
 int main(void) {
    int *pr = NULL;
    int size,c = 0;
    HeapType *root = (HeapType *)malloc(sizeof(HeapType));
-   initHeap(root, 50);
-   addHeap(root, 10);
-   addHeap(root, 25);
-   addHeap(root, 55);
-   addHeap(root, 70);
-   addHeap(root, 8);
+   initHeap(root, 10);
+   for (c=0; c<10; c++) {
+      addHeap(root, c);
+      printf("ADDED %d\n", c);
+      disp_Heap(root);
+   }
    printf("PRE\n");
    if (preorder(root, &pr, &size) == 0) {
       for (c=0; c<size; c++) {
@@ -95,38 +108,66 @@ int initHeap(HeapType *pHeap, int size) {
 }
 
 int inorder(HeapType *pHeap, int **output, int *o_size) {
-   int c, current = 1;
-   int l, r, temp = -1;
-   int from = -1; /* -1 for left, 0 for parent, 1 for right */
+   int c = 1;
+   int current = 1;
+   int travFrom = 1;
+   int last = -1; /* -1 for left, 0 for parent, 1 for right */
+   int added;
    if (output == NULL || pHeap == NULL || o_size == NULL) { return -1; }
    initOutArray(pHeap->end, output, o_size);
-   while (current < pHeap->end) {
+   while (getLeftIndex(current) <= pHeap->end) {
       current = getLeftIndex(current);
    }
-   current = getParentIndex(current);
-   for (c=0; c<pHeap->end; c++) {
-      if (temp = getLeftIndex(current) < pHeap->end && from != -1) {
-         current = temp;
-         from = -1;
-      } else if (temp = getRightIndex(current) < pHeap->end && from == 0) {
-         current = temp;
-         from = 1;
-      } else if (from != 1) {
-         current = getParentIndex(current);
-         from = 0;
+   travFrom = getParentIndex(current) + 1;
+   (*output)[0] = (pHeap->store)[current-1];
+   for (c=1; c < pHeap->end; c++) {
+      if (last == -1) {
+         current = getParentIndex(current) + 1;
+         last = 0;
+      } else if (last == 0) {
+         if (getRightIndex(current) <= pHeap->end) {
+            printf("ASD -> %d\n", (pHeap->store)[current-1]);
+            travFrom = current;
+            current = getRightIndex(current);
+            last = 1;
+            if (getLeftIndex(current) < pHeap->end) {
+               travFrom = current;
+               while (getLeftIndex(current) < pHeap->end) {
+                  current = getLeftIndex(current);
+               }
+               last = -1;
+            }
+         } else {
+            current = getParentIndex(travFrom) + 1;
+            travFrom = current;
+         }
       } else {
-         current = getParentIndex(getParentIndex(current));
-         from = 0;
+         current = getParentIndex(travFrom) + 1;
+         last = 0;
       }
+      added = (pHeap->store)[current-1];
       (*output)[c] = (pHeap->store)[current-1];
    }
    return 0;
 }
 
 int postorder(HeapType *pHeap, int **output, int *o_size) {
-   int c = 0;
+   int c,v;
+   int i = 0;
+   int depth = 1;
    if (output == NULL || pHeap == NULL || o_size == NULL) { return -1; }
    initOutArray(pHeap->end, output, o_size);
+   while (depth*2 < pHeap->end) {
+      depth = depth*2;
+   }
+   for (c=depth; c >= 1; c = c/2) {
+      for (v=c; v < c*2; v++) {
+         if (v >= pHeap->end) { break; }
+         (*output)[i] = (pHeap->store)[v];
+         i = i + 1;
+      }
+   }
+   (*output)[i] = (pHeap->store)[0];
    return 0;
 }
 
@@ -150,7 +191,7 @@ int preorder(HeapType *pHeap, int **output, int *o_size) {
 
 int getParentIndex(int index) {
    if (index == 0) { return -1; }
-   return (int)(index / 2);
+   return (int)((index+1) / 2) - 1;
 }
 
 int getLeftIndex(int index) {
@@ -183,15 +224,10 @@ int addHeap(HeapType *pHeap, int key) {
    int c = 0;
    int *st = pHeap->store;
    if (pHeap == NULL) { return -1; }
-   if (pHeap->end >= pHeap->size - 1) {  
+   if (pHeap->end + 1 > pHeap->size) {  
       return -1;
    }
-   // for (c=0; c<pHeap->end; c++) {
-   //    if ((pHeap->store)[c] == key) {
-   //       return -1;
-   //    }
-   // }
-   pHeap->end = pHeap->end + 1;
    st[(pHeap->end)] = key;
-   return shiftValue(pHeap, pHeap->end);
+   pHeap->end = pHeap->end + 1;
+   return shiftValue(pHeap, pHeap->end-1);
 }
