@@ -22,6 +22,7 @@ int inorder(HeapType *, int **, int *);
 int preorder(HeapType *, int **, int *);
 int postorder(HeapType *, int **, int *);
 int findHeap(HeapType *, int);
+int delHeap(HeapType *, int *);
 int addHeap(HeapType *, int);
 int shiftValue(HeapType *, int);
 int getParentIndex(int);
@@ -29,6 +30,7 @@ int getLeftIndex(int);
 int getRightIndex(int);
 int print(int);
 int expp(int, int);
+int moveLargestUp(HeapType *, int);
 
 int disp_Heap(HeapType *pHeap) {
    int i = 0;
@@ -71,6 +73,9 @@ int main(void) {
          printf("%d\n", pr[c]);
       }
    }
+   delHeap(root, &c);
+   printf("Removed: %d\n", c);
+   disp_Heap(root);
    return 0;
 }
 
@@ -107,6 +112,13 @@ int initHeap(HeapType *pHeap, int size) {
    if (pHeap->store == NULL) {
       return -1;
    }
+   return 0;
+}
+
+int preorder(HeapType *pHeap, int **output, int *o_size) { /* NLR */
+   if (output == NULL || pHeap == NULL || o_size == NULL) { return -1; }
+   initOutArray(pHeap->end, output, o_size);
+   
    return 0;
 }
 
@@ -164,23 +176,21 @@ int expp(int val, int power) {
    return ret;
 }
 
-int postorder(HeapType *pHeap, int **output, int *o_size) {
-   int c,v;
-   int i = 0;
-   int depth = 1;
+int postorder(HeapType *pHeap, int **output, int *o_size) { /* LRN */
+   int c = 1, x = 0, val = 0, distance = 0;
+   int depth = 0,dp = 0;
+   int dTrial = 1;
+   int ind = 0;
+   int step = 1;
+   int btmovr = 0;
    if (output == NULL || pHeap == NULL || o_size == NULL) { return -1; }
    initOutArray(pHeap->end, output, o_size);
-   while (depth*2 < pHeap->end) {
-      depth = depth*2;
+   while (c*2 <= pHeap->end) {
+      c *= 2;
+      depth++;
    }
-   for (c=depth; c >= 1; c = c/2) {
-      for (v=c-1; v < (c*2) - 1; v++) {
-         if (v >= pHeap->end) { break; }
-         (*output)[i] = (pHeap->store)[v];
-         i = i + 1;
-      }
-   }
-   (*output)[i] = (pHeap->store)[0];
+   dp = expp(2, depth);
+   
    return 0;
 }
 
@@ -194,16 +204,6 @@ int initOutArray(int size, int **out, int *o_size) {
    if (out == NULL || o_size == NULL) { return -1; }
    *out = (int *)malloc(sizeof(int)*size);
    *o_size = size;
-   return 0;
-}
-
-int preorder(HeapType *pHeap, int **output, int *o_size) {
-   int c = 0;
-   if (output == NULL || pHeap == NULL || o_size == NULL) { return -1; }
-   initOutArray(pHeap->end, output, o_size);
-   for (c=0; c<pHeap->end; c++) {
-      (*output)[c] = (pHeap->store)[c];
-   }
    return 0;
 }
 
@@ -248,4 +248,40 @@ int addHeap(HeapType *pHeap, int key) {
    st[(pHeap->end)] = key;
    pHeap->end = pHeap->end + 1;
    return shiftValue(pHeap, pHeap->end-1);
+}
+
+int findHeap(HeapType *pHeap, int key) {
+   int c;
+   if (pHeap == NULL) { return -1; }
+   for (c=0; c < pHeap->end; c++) {
+      if (key == (pHeap->store)[c]) { return 1; }
+   }
+   return 0;
+}
+
+int delHeap(HeapType *pHeap, int *key) {
+   if (pHeap == NULL || key == NULL) { return -1; }
+   *key = (pHeap->store)[0];
+   moveLargestUp(pHeap, 0);
+   pHeap->end = pHeap->end - 1;
+   return 0;
+}
+
+int moveLargestUp(HeapType *pHeap, int parent) {
+   int par = parent + 1;
+   int l,r,chosen;
+   if (pHeap == NULL) { return -1; }
+   if (par*2 >= pHeap->end) {
+      return 0;
+   } else {
+      l = par*2;
+      r = (par*2)+1;
+      if ((pHeap->store)[l-1] > (pHeap->store)[r-1]) {
+         chosen = l;
+      } else {
+         chosen = r;
+      }
+      (pHeap->store)[parent] = (pHeap->store)[chosen-1];
+      return moveLargestUp(pHeap, chosen-1);
+   }
 }
