@@ -111,6 +111,7 @@ int inorder(HeapType *pHeap, int **output, int *o_size) {
    int c = 1;
    int current = 1;
    int travFrom = 1;
+   int lastParent = 1;
    int last = -1; /* -1 for left, 0 for parent, 1 for right */
    int added;
    if (output == NULL || pHeap == NULL || o_size == NULL) { return -1; }
@@ -131,14 +132,14 @@ int inorder(HeapType *pHeap, int **output, int *o_size) {
             current = getRightIndex(current);
             last = 1;
             if (getLeftIndex(current) < pHeap->end) {
-               travFrom = current;
+               lastParent = travFrom;
                while (getLeftIndex(current) < pHeap->end) {
                   current = getLeftIndex(current);
                }
                last = -1;
             }
          } else {
-            current = getParentIndex(travFrom) + 1;
+            current = getParentIndex(lastParent) + 1;
             travFrom = current;
          }
       } else {
