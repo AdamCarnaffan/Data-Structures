@@ -184,7 +184,8 @@ int findHeap(HeapType *pHeap, int key) {
       if (node == 1) {
          continue;
       }
-      while ((2*index + side < pHeap->end) && ( key > (pHeap->store)[2*index + side])) {
+      while ((2*index + side < pHeap->end) {
+         ( key > pHeap->store)[2*index + side]) {
          index = 2*index + side;
       }
       if (key == )
