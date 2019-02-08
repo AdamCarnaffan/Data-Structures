@@ -26,6 +26,7 @@ int shiftValue(HeapType *, int);
 int getParentIndex(int);
 int getLeftIndex(int);
 int getRightIndex(int);
+int print(int);
 
 int disp_Heap(HeapType *pHeap) {
    int i = 0;
@@ -118,31 +119,32 @@ int inorder(HeapType *pHeap, int **output, int *o_size) {
    while (getLeftIndex(current) <= pHeap->end) {
       current = getLeftIndex(current);
    }
+   print(getParentIndex(5));
    travFrom = getParentIndex(current) + 1;
    (*output)[0] = (pHeap->store)[current-1];
    for (c=1; c < pHeap->end; c++) {
       if (last == -1) {
-         current = getParentIndex(current) + 1;
+         current = (int)(current/2);
+         travFrom = current;
          last = 0;
       } else if (last == 0) {
          if (getRightIndex(current) <= pHeap->end) {
-            printf("ASD -> %d\n", (pHeap->store)[current-1]);
             travFrom = current;
             current = getRightIndex(current);
             last = 1;
-            if (getLeftIndex(current) < pHeap->end) {
+            if (getLeftIndex(current) <= pHeap->end) {
                travFrom = current;
-               while (getLeftIndex(current) < pHeap->end) {
+               while (getLeftIndex(current) <= pHeap->end) {
                   current = getLeftIndex(current);
                }
                last = -1;
             }
          } else {
-            current = getParentIndex(travFrom) + 1;
+            current = (int)(travFrom/2);
             travFrom = current;
          }
       } else {
-         current = getParentIndex(travFrom) + 1;
+         current = (int)(travFrom/2);
          last = 0;
       }
       added = (pHeap->store)[current-1];
@@ -161,13 +163,18 @@ int postorder(HeapType *pHeap, int **output, int *o_size) {
       depth = depth*2;
    }
    for (c=depth; c >= 1; c = c/2) {
-      for (v=c; v < c*2; v++) {
+      for (v=c-1; v < (c*2) - 1; v++) {
          if (v >= pHeap->end) { break; }
          (*output)[i] = (pHeap->store)[v];
          i = i + 1;
       }
    }
    (*output)[i] = (pHeap->store)[0];
+   return 0;
+}
+
+int print(int val) {
+   printf("DEBUG -> %d\n", val);
    return 0;
 }
 
