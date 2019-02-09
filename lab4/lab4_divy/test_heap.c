@@ -13,8 +13,9 @@ int main(void) {
    }
    printf("Heap: "), disp_Heap(pHeap);
    delHeap(pHeap, &key);
+   inorder(pHeap, &output, &o_size);
    printf("Heap: "), disp_Heap(pHeap);
-   //printf("Output: "), disp_array(output, size);
+   printf("Output: "), disp_array(output, size);
    printf("Key is: %d", key);
    return 0;
 }
