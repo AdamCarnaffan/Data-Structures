@@ -189,14 +189,14 @@ int delHeap(HeapType *pHeap, int *key) {
       return -1;
    }
    *key = (pHeap->store)[0];
+   pHeap->end -= 1;
    if (pHeap->end > 1) {
-      (pHeap->store)[0] = (pHeap->store)[pHeap->end - 1];
+      (pHeap->store)[0] = (pHeap->store)[pHeap->end];
    }
    else {
       (pHeap->store)[0] = 0;
       return 0; 
    }
-   pHeap->end -= 1;
    while (1) {
       if (2*index + 1 < pHeap->end) {
          l = 2*index + 1;
