@@ -178,24 +178,42 @@ int addHeap(HeapType *pHeap, int key) {
 }
 
 int findHeap(HeapType *pHeap, int key) { 
-   int index = 0, side = 1, node = 0;
+   int index = 0, side = 1, node = 0, temp = 0;
    if (pHeap == NULL) {
       return -1;
    }
    while (1) {
+      printf("index %d\n", index);
       if (node == 1) {
+         while (index % 2 == 0) {
+            if (index == 0) {
+               return 0;
+            }
+            index = (index - side)/2;
+         }
+         index = (index - 1)/2;
+         node = 0;
          continue;
       }
-      while (2*index + side < pHeap->end){ 
-         if (key > (pHeap->store)[2*index + side]) {
+      while (2*index + side < pHeap->end) {
+         temp += 1;
+         if (key < (pHeap->store)[2*index + side]) {
             index = 2*index + side;
-            if (side % 2 == 0) {
+            if (side == 2) {
                side = 1;
-            }         
+            }
+         }
+         else if (side == 1) { side = 2; }
+         else { break; }
+         if (temp == 5) {
+            break;
          }
       }
-      
-   return 0;
+      if (key == (pHeap->store)[2*index + side]) {
+         return 1;
+      }
+      node = 1;
+   }
 }
 
 int delHeap(HeapType *pHeap, int *key) {
@@ -258,5 +276,6 @@ int main(void) {
    preorder(pHeap, &output, &o_size);
    printf("Heap: "), disp_Heap(pHeap);
    printf("Output: "), disp_array(output, size);
+   printf("Value Found: %d", findHeap(pHeap, 4));
    return 0;
 }
