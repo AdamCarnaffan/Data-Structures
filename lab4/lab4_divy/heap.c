@@ -1,20 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-typedef struct {
-   int *store;
-   unsigned int size;
-   unsigned int end;
-} HeapType;
-
-int initHeap(HeapType *pHeap, int size);
-int inorder(HeapType *pHeap, int **output, int *o_size);
-int preorder(HeapType *pHeap, int **output, int *o_size);
-int postorder(HeapType *pHeap, int **output, int *o_size);
-int addHeap(HeapType *pHeap, int key);
-int findHeap(HeapType *pHeap, int key);
-int disp_Heap(HeapType *pHeap);
-int disp_array(int *array, int size);
+#include "heap.h"
 
 int initHeap(HeapType *pHeap, int size) {
    if (pHeap == NULL) {
@@ -29,7 +15,7 @@ int initHeap(HeapType *pHeap, int size) {
    return 0;
 }
 
-int inorder(HeapType *pHeap, int **output, int *o_size) {  /* NLR */
+int inorder(HeapType *pHeap, int **output, int *o_size) {  /* LNR */
    int index = 0, node = 0, counter = 0, side = 1, depth = 1; /* left = 1, right = 2 */
    if (pHeap == NULL) {
       return -1;
@@ -175,19 +161,84 @@ int addHeap(HeapType *pHeap, int key) {
    return 0;
 }
 
-int findHeap(HeapType *pHeap, int key) {
-   int index = 0, c1 = 0, c2 = 0, side = 1, node = 0;
+int findHeap(HeapType *pHeap, int key) { 
+   int i = 0;
    if (pHeap == NULL) {
       return -1;
    }
+   for (i = 0; i < pHeap->size; i++) {
+      if (key == (pHeap->store)[i]) {
+         return 1;
+      }
+   }
+   return 0;
+}
+
+int max(int a, int b) {
+   if (a > b) {
+      return a;
+   }
+   else {
+      return b;
+   }
+}
+
+int delHeap(HeapType *pHeap, int *key) {
+   int index = 0, l = 0, r = 0, swap = 0, cnt = 0;
+   if (pHeap == NULL) {
+      return -1;
+   }
+   *key = (pHeap->store)[0];
+   pHeap->end -= 1;
+   if (pHeap->end > 1) {
+      (pHeap->store)[0] = (pHeap->store)[pHeap->end];
+   }
+   else {
+      (pHeap->store)[0] = 0;
+      return 0; 
+   }
    while (1) {
-      if (node == 1) {
-         continue;
+      if (2*index + 1 < pHeap->end) {
+         l = 2*index + 1;
+         cnt += 1;
       }
-      while ((2*index + side < pHeap->end) && ( key > (pHeap->store)[2*index + side])) {
-         index = 2*index + side;
+      if (2*index + 2 < pHeap->end) {
+         r = 2*index + 2;
+         cnt += 2;
       }
-      if (key == )
+      if (cnt == 0) {
+         return 0;
+      }
+      if (cnt == 1) {
+         if ((pHeap->store)[index] < (pHeap->store)[l]) {
+            swap = (pHeap->store)[index];
+            (pHeap->store)[index] = (pHeap->store)[l];
+            (pHeap->store)[l] = swap;
+            index = l;
+         }
+         else {
+            return 0;
+         }
+      }
+      else if (cnt == 3) {
+         if (max((pHeap->store)[l], (pHeap->store)[r]) == (pHeap->store)[l]) {
+            swap = (pHeap->store)[index];
+            (pHeap->store)[index] = (pHeap->store)[l];
+            (pHeap->store)[l] = swap;
+            index = l;
+         }
+         else if (max((pHeap->store)[l], (pHeap->store)[r]) == (pHeap->store)[r]) {
+            swap = (pHeap->store)[index];
+            (pHeap->store)[index] = (pHeap->store)[r];
+            (pHeap->store)[r] = swap;
+            index = r;
+         }
+         else {
+            return 0;
+         }
+      }
+
+      cnt = 0;
    }
 }
 
@@ -215,21 +266,5 @@ int disp_array(int *array, int size) {
       printf("%d,", array[i]);
    }
    printf("]\n");
-   return 0;
-}
-
-
-int main(void) {
-   HeapType *pHeap = (HeapType *)malloc(sizeof(HeapType));
-   int size = 0, o_size = 0, *output, i = 0;
-   printf("Input Size:\n");
-   scanf("%d", &size);
-   initHeap(pHeap, size);
-   for (i = 0; i < size; i++) {
-      addHeap(pHeap, i);
-   }
-   preorder(pHeap, &output, &o_size);
-   printf("Heap: "), disp_Heap(pHeap);
-   printf("Output: "), disp_array(output, size);
    return 0;
 }
