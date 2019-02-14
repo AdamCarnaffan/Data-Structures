@@ -1,6 +1,6 @@
 def GenBoard():
    board = []
-   for i in range(64):
+   for i in range(0, 64, 1):
       if i >= 16 and i <= 47:  # no pieces
          board += [0]
       elif i <= 7:  # back w rank
@@ -29,6 +29,7 @@ def GenBoard():
             board += [24]
          else:  # b king
             board += [25]
+   board[35] = 23
    return board
 
 def DisplayBoard(board):
@@ -92,81 +93,127 @@ def IndexBoard():
    print(display)
    return True
 
+def InBoard(index):
+   if index < 0 or index > 63:
+      return False
+   return True
+
+def IsPlayer(board, index, player):
+   if board[index] < player or board[index] > player + 5:
+      return False
+   return True
+
 def GetPlayerPositions(board, player):  # location of all player pieces
    if (player != 10 or player != 20) and type(board) != list:
       return False
    positions = []
-   for i in range(0, len(board), 1):
-      if board[i] >= player and board[i] <= player + 5:
+   for i in range(0, 64, 1):
+      if IsPlayer(board, i, player):
          positions += [i]
    return positions
 
 def GetPieceLegalMoves(board, position):  # legal moves of piece at position
    if position < 0 or position > 63 or type(board) != list or board[position] == 0:
       return False
-   moves = []
+   move_functions = [GetPawnMoves, GetKnightMoves, GetBishopMoves, GetRookMoves, GetQueenMoves, GetKingMoves]
    current_row = position//8  # between 0 to 7
-   player = int(str(board[position])[0])  # 1 or 2
-   opponent = 2
-   piece_type = int(str(board[position])[1])  # between 0 to 5
-   if player == 2:  # 1 is white, 2 is black
-      opponent = 1
-   if piece_type == 0:
-      moves = GetPawnMoves(board, position, player, opponent, current_row)
-   elif piece_type == 1:
-      moves = GetKnightMoves(board, position, player, opponent, current_row)
-   elif piece_type == 2:
-      moves = []
-   elif piece_type == 3:
-      moves = []
-   elif piece_type == 4:
-      moves = []
-   elif piece_type == 5:
-      moves = []
-   return moves + ["piece type: " + str(piece_type)]
+   player, opponent = board[position]//10 * 10, 20
+   piece_type = int(str(board[position])[1])
+   if player == 20:
+      opponent = 10
+   return move_functions[piece_type](board, position, player, opponent, current_row)
 
 def GetPawnMoves(board, position, player, opponent, row):
+   moves = []
    if player == 1:
-      factor = 1
+      factor = 1 
    else:
       factor = -1
-   moves = []
    for i in range(position + 7*factor, position + 10*factor, 1*factor):
       if i < 0 or i > 63 or i//8 != row + factor:
          continue
-      elif i == position + 8*factor or int(str(i)[1]) == opponent:
+      elif i == position + 8*factor:
+         if board[i] == 0:
+            moves += [i]
+         continue
+      elif IsPlayer(board, i, opponent):
          moves += [i]
    return moves
 
 def GetKnightMoves(board, position, player, opponent, row):
    moves = []
-   for i in range(position - 2*8, position + 2*8, 8):
-      print("i is: ", i)
-      if i < 0 or i > 63:
+   for i in range(position - 2*8, position + 3*8, 8):
+      if not InBoard(i) or i == position:
          continue
       elif abs(i//8 - row) == 2:
-         l = i - 1 
-         r = i + 1
-         if l >= 0 or l <= 63:
+         l, r = i - 1, i + 1
+         if l//8 == i//8 and (board[l] == 0 or IsPlayer(board, l, opponent)):
             moves += [l]
-         elif r >= 0 or r <= 63:
+         if r//8 == i//8 and (board[r] == 0 or IsPlayer(board, r, opponent)):
             moves += [r]
       else:
-         l = i - 2
-         r = i + 2
-         if l >= 0 or l <= 63:
+         l, r = i - 2, i + 2
+         if l//8 == i//8 and (board[l] == 0 or IsPlayer(board, l, opponent)):
             moves += [l]
-         elif r >= 0 or r <= 63:
+         if r//8 == i//8 and (board[r] == 0 or IsPlayer(board, r, opponent)):
             moves += [r]
    return moves
-         
 
+def GetBishopMoves(board, position, player, opponent, row):
+   moves, directions, n, j = [], [-1, 1, -1, 1], 1, -1
+   while directions != [0, 0, 0, 0]:
+      j += 1
+      if j > 0 and j % 2 == 0:
+         n *= -1
+         if j == 4:
+            j = 0
+            n = abs(n) + 1
+      if not directions[j]:
+         continue
+      index = position + 8*n + directions[j]*n
+      if InBoard(index) and abs(index//8 - row) == abs(n):
+         if board[index] == 0:
+            moves += [index]
+            continue
+         elif IsPlayer(board, index, opponent):
+            moves += [index]
+         directions[j] = 0
+      else:
+         directions[j] = 0
+   return moves   
+
+def GetRookMoves(board, position, player, opponent, row):
+   moves, directions, n, j = [], [[1, 1], [-1, 1], [0, 1], [0, 1]], 1, -1
+   while directions != [[1, 0], [-1, 0], [0, 0], [0, 0]]:
+      j += 1
+      if j == 4:
+         j = 0
+         n += 1
+      if not directions[j][1]:
+         continue
+      index = position + 8*n*directions[j][0] + n*directions[abs(3 - j)][0]
+      if InBoard(index) and abs(index//8 - row) == abs(n*directions[j][0]):
+         if board[index] == 0:
+            moves += [index]
+            continue
+         elif IsPlayer(board, index, opponent):
+            moves += [index]
+         directions[j][1] = 0
+      else:
+         directions[j][1] = 0
+   return moves
+
+def GetQueenMoves(board, position, player, opponent, row):
+   pass
+
+def GetKingMoves(board, position, player, opponent, row):
+   pass
 
 def test():
    board = GenBoard()
    #DisplayBoard(board)
    IndexBoard()
-   moves = GetPieceLegalMoves(board, 57)
+   moves = GetPieceLegalMoves(board, 35)
    print(moves)
    return True  
 
