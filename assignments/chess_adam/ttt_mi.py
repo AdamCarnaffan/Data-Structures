@@ -3,6 +3,7 @@ import math
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 GAMMA = 0.9
 LAMBDA = 0.5
@@ -23,24 +24,23 @@ class Model:
       self.define_model()
 
    def define_model(self):
-      self.states = tf.placeholder(shape=[None, self.num_states], dtype=tf.float32)
-      self.q_s_a = tf.placeholder(shape=[None, self.num_actions], dtype=tf.float32)
+      self.q_s_a = tf.placeholder(shape=[None, 9], dtype=tf.float32)
       # Create hidden layers
-      fc1 = tf.layers.dense(self.states, 50, activation=tf.nn.relu)
-      fc2 = tf.layers.dense(fc1, 50, activation=tf.nn.relu)
-      self.logits = tf.layers.dense(fc2, self.num_actions)
+      self.input_positions = tf.placeholder(shape=[None, 27], dtype=tf.float32)
+      fc = tf.layers.dense(self.input_positions, 9*3*9, activation=tf.nn.relu)
+      self.logits = tf.layers.dense(fc, self.num_actions) # Final Network
       loss = tf.losses.mean_squared_error(self.q_s_a, self.logits)
       self.optimizer = tf.train.AdamOptimizer().minimize(loss)
       self.var_init = tf.global_variables_initializer()
 
-   def predict_one(self, state, moves, sess):
-      return sess.run(self.logits, feed_dict={self.states: np.reshape(state, [1, self.num_states]), self.actions: moves})
+   def predict_one(self, state, sess):
+      return sess.run(self.logits, feed_dict={self.input_positions: np.reshape(state, [1, self.num_states])})
 
    def predict_batch(self, states, sess):
-      return sess.run(self.logits, feed_dict={self.states: states})
+      return sess.run(self.logits, feed_dict={self.input_positions: states})
 
    def train_batch(self, sess, x_batch, y_batch):
-      sess.run(self.optimizer, feed_dict={self.states: x_batch, self.q_s_a: y_batch})
+      sess.run(self.optimizer, feed_dict={self.input_positions: x_batch, self.q_s_a: y_batch})
 
 
 class Memory:
@@ -137,7 +137,7 @@ class TicTacToe:
       if not playAsSelf:
          new.change_turn()
       new.toggle_ai()
-      r = new.process_turn(pos)[1]
+      r = new.process_turn(pos)[2]
       return r
 
    def get_open_moves(self):
@@ -160,24 +160,17 @@ class TicTacToe:
       return True
 
    def process_turn(self, pos):
-      done = False
       if self.make_move(pos):
          self.movesMade = self.movesMade + 1
          win = self.check_win(pos)
          self.change_turn()
          if self.useAI and self.playing == 2 and win == 0 and self.movesMade <= 8:
             move = self.generate_move()
-            if self.process_turn(move)[2]:
-               win = self.playing
-               done = True
-         if win <= 0 and self.movesMade > 8:
-            self.winner = -1
-            done = True
-         elif win != 0:
-            self.winner = win
-            done = True
-         return [self.winner] + self.board, 0, done
-      return [-2] + self.board, 0, False
+            win = self.process_turn(move)[2]
+         if win == 0 and self.movesMade > 8:
+            win = -1
+         return self.board_to_node(), 0, win
+      return self.board_to_node(), 0, -2
 
    def make_move(self, pos):
       if self.validate_pos(pos):
@@ -190,6 +183,10 @@ class TicTacToe:
       if self.board[pos] == 0:
          return True
       return False
+
+   def board_to_node(self) -> np.array:
+      res = np.array([1 if (b == 1) else 0 for b in self.board] + [1 if (b == 2) else 0 for b in self.board] + [1 if (b == 0) else 0 for b in self.board])
+      return res
 
    def check_win(self, pos):
       x = pos % 3
@@ -213,7 +210,7 @@ class TicTacToe:
       self.movesMade = 0
       self.useAI = False
       self.winner = 0
-      return [0] + self.board
+      return self.board_to_node()
 
 # def main():
 #    game = TicTacToe()
@@ -228,23 +225,18 @@ class TicTacToe:
 #          print("ERR: The position input was invalid")
 #          continue
 #       game.display()
-#       if not res[0]:
+#       if res[2] == -2:
 #          print("ERR: The move could not be performed")
-#       if res[1] > 0:
-#          print("Player " + str(res[1]) + " has won!")
+#          continue
+#       if res[2] > 0:
+#          print("Player " + str(res[2]) + " has won!")
 #          break
-#       elif res[1] == -1:
+#       elif res[2] == -1:
 #          print("DRAW!")
 #          break
 #    return True
 
-'''
-STATES
-0 -> in play
-1 -> Win
-2 -> Loss
--1 -> Draw
-'''
+# main()
 
 class Runner:
    def __init__(self, sess, model : Model, env : TicTacToe, memory : Memory, max_eps, min_eps, decay, render=True):
@@ -268,19 +260,20 @@ class Runner:
       while True:
          if self.render:
             self.env.display()
-         action = self.choose_action(state, self.env.get_open_moves())
+         action = self.choose_action(self.env.board_to_node())
          next_state, reward, done = self.env.process_turn(action)
 
-         if next_state[0] == 0:
-            reward += 10
-         elif next_state[0] == 1:
-            reward += 1000*(5-self.steps)
-         elif next_state[0] == 2:
-            reward -= 1000
-         else:
-            reward = 0
+         if done == -2:
+            continue
 
-         if done:
+         if done == 1:
+            reward += 1000/self.steps
+         elif done == 2:
+            reward -= 1000
+         elif done == 0:
+            reward += 10
+
+         if done != 0:
             next_state = None
 
          self.memory.add_sample((state, action, reward, next_state))
@@ -293,24 +286,25 @@ class Runner:
          state = next_state
          total_reward += reward
 
-         if done:
+         if done != 0:
             self.rewards.append(total_reward)
             self.turns.append(self.steps)
             break
-      print("FINAL")
-      self.env.display()
-      print("Step {}, Total Reward: {}, Eps: {}".format(self.steps, total_reward, self.eps))
+
+      # print("FINAL")
+      # self.env.display()
+      # print("Step {}, Total Reward: {}, Winner: {}, Eps: {}".format(self.steps, total_reward, done, self.eps))
       self.steps = 0
       return True
 
 
-   def choose_action(self, state, moves):
+   def choose_action(self, state):
       if random.random() < self.eps:
-         return moves[random.randint(0, len(moves))]
+         return random.randint(0, 8)
       else:
-         return np.argmax(self.model.predict_one(state, moves, self.sess))
+         return np.argmax(self.model.predict_one(state, self.sess))
 
-   def replay(self):
+   def replay(self): # This is wrong
       batch = self.memory.sample(self.model.batch_size)
       states = np.array([val[0] for val in batch])
       next_states = np.array([(np.zeros(self.model.num_states) if val[3] is None else val[3]) for val in batch])
@@ -330,15 +324,16 @@ class Runner:
             current_q[action] = reward
          else:
             current_q[action] = reward + GAMMA * np.amax(q_s_a_d[i])
-         x[i] = state[0]
+         x[i] = state
          y[i] = current_q
       self.model.train_batch(self.sess, x, y)
 
 if __name__ == "__main__":
    env = TicTacToe()
 
-   num_states = 10
+   num_states = 9 * 3
    num_actions = 9
+   iters = 1000
 
    model = Model(num_states, num_actions, 55)
    mem = Memory(50000)
@@ -346,17 +341,26 @@ if __name__ == "__main__":
    with tf.Session() as sess:
       sess.run(model.var_init)
       saver = tf.train.Saver()
-      saver.restore(sess, "./tmp/ttt_mi.ckpt")
-      gr = Runner(sess, model, env, mem, 1, 0.1, LAMBDA)
-      num_episodes = 10
+      # try:
+      #    saver.restore(sess, "./tmp/ttt_mi.ckpt")
+      #    print("Restore From Backup")
+      # except:
+      #    print("Restoring the model failed")
+      pbar = tqdm(total=iters)
+      gr = Runner(sess, model, env, mem, 1, 0.1, LAMBDA, False)
+      num_episodes = iters
       cnt = 0
       while cnt < num_episodes:
-         if (cnt % 10 == 0):
-            print("Episode {} of {}".format(cnt+1, num_episodes))
+         # if (cnt % 10 == 0):
+         #    print("Episode {} of {}".format(cnt+1, num_episodes))
          gr.run()
+         pbar.update(1)
          cnt += 1
-      save_path = saver.save(sess, "./tmp/ttt_mi.ckpt")
-      print("Model Saved to: %s" % save_path)
+      # try:
+      #    save_path = saver.save(sess, "./tmp/ttt_mi.ckpt")
+      #    print("\nModel Saved to: %s" % save_path)
+      # except:
+      #    print("\nSaving the model failed")
       plt.plot(gr.rewards)
       plt.show()
       plt.close("all")
