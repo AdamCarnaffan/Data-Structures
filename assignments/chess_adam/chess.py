@@ -1,7 +1,7 @@
 def make_board():
    board = []
-   for i in range(0, 8, 1):
-      for b in range(0, 8, 1):
+   for _ in range(0, 8, 1):
+      for _ in range(0, 8, 1):
          board = board + [0]
    return board
 
