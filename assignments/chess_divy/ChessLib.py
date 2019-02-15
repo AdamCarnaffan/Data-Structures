@@ -1,38 +1,7 @@
-def GenBoard():
-   board = []
-   for i in range(0, 64, 1):
-      if i >= 16 and i <= 47:  # no pieces
-         board += [0]
-      elif i <= 7:  # back w rank
-         if i == 0 or i == 7:  # w rooks
-            board += [13]
-         elif i == 1 or i == 6:  # w knights
-            board += [11]
-         elif i == 2 or i == 5:  # w bishops
-            board += [12]
-         elif i == 3:  # queen
-            board += [14]
-         else:  # b king
-            board += [15]
-      elif i <= 15:  # w pawns
-         board += [10]
-      elif i >= 48 and i <=55:  # b pawns 
-         board += [20]
-      elif i >=56:  # back b rank
-         if i == 56 or i == 63:  # b rooks
-            board += [23]
-         elif i == 57 or i == 62:  # b knights
-            board += [21]
-         elif i == 58 or i == 61:  # b bishops
-            board += [22]
-         elif i == 59:  # b queen
-            board += [24]
-         else:  # b king
-            board += [25]
-   board[35] = 23
-   return board
+from time import time
+start_time = time()
 
-def DisplayBoard(board):
+def DisplayBoard(board):  # not needed
    display = ""
    for i in range(7, -1, -1):  # row
       for j in range(8 * i, 8 * i + 8, 1): 
@@ -81,7 +50,7 @@ def DisplayBoard(board):
    print(display)
    return True
 
-def IndexBoard():
+def IndexBoard():  # not needed
    display = ""
    for i in range(7, -1, -1):  # row
       for j in range(8 * i, 8 * i + 8, 1):
@@ -92,6 +61,57 @@ def IndexBoard():
             display += " "
    print(display)
    return True
+
+def InsertSort(array, data):  #array should be altered, want to avoid creating new boards, similar to C_language
+   if type(data) != list:
+      array += [data]
+   else:
+      array += data
+   for i in range(len(array) - 1, 0, -1):
+      swap_flag = False
+      for j in range(i, len(array) - i - 1, -1):
+         if array[j] < array[j - 1]:
+            array[j], array[j - 1] = array[j - 1], array[j]
+            swap_flag = True
+      if not swap_flag:
+         break
+   return True
+
+def GenBoard():
+   board = []
+   for i in range(0, 64, 1):
+      if i >= 16 and i <= 47:  # no pieces
+         board += [0]
+      elif i <= 7:  # back w rank
+         if i == 0 or i == 7:  # w rooks
+            board += [13]
+         elif i == 1 or i == 6:  # w knights
+            board += [11]
+         elif i == 2 or i == 5:  # w bishops
+            board += [12]
+         elif i == 3:  # queen
+            board += [14]
+         else:  # b king
+            board += [15]
+      elif i <= 15:  # w pawns
+         board += [10]
+      elif i >= 48 and i <=55:  # b pawns 
+         board += [20]
+      elif i >=56:  # back b rank
+         if i == 56 or i == 63:  # b rooks
+            board += [23]
+         elif i == 57 or i == 62:  # b knights
+            board += [21]
+         elif i == 58 or i == 61:  # b bishops
+            board += [22]
+         elif i == 59:  # b queen
+            board += [24]
+         else:  # b king
+            board += [25]
+   return board
+
+def PlayerPieces(board):
+   return [GetPlayerPositions(board, 10), GetPlayerPositions(board, 20)]
 
 def InBoard(index):
    if index < 0 or index > 63:
@@ -109,7 +129,7 @@ def GetPlayerPositions(board, player):  # location of all player pieces
    positions = []
    for i in range(0, 64, 1):
       if IsPlayer(board, i, player):
-         positions += [i]
+         InsertSort(positions, i)
    return positions
 
 def GetPieceLegalMoves(board, position):  # legal moves of piece at position
@@ -125,7 +145,7 @@ def GetPieceLegalMoves(board, position):  # legal moves of piece at position
 
 def GetPawnMoves(board, position, player, opponent, row):
    moves = []
-   if player == 1:
+   if player == 10:
       factor = 1 
    else:
       factor = -1
@@ -134,10 +154,10 @@ def GetPawnMoves(board, position, player, opponent, row):
          continue
       elif i == position + 8*factor:
          if board[i] == 0:
-            moves += [i]
+            InsertSort(moves, i)
          continue
       elif IsPlayer(board, i, opponent):
-         moves += [i]
+         InsertSort(moves, i)
    return moves
 
 def GetKnightMoves(board, position, player, opponent, row):
@@ -148,15 +168,15 @@ def GetKnightMoves(board, position, player, opponent, row):
       elif abs(i//8 - row) == 2:
          l, r = i - 1, i + 1
          if l//8 == i//8 and (board[l] == 0 or IsPlayer(board, l, opponent)):
-            moves += [l]
+            InsertSort(moves, l)
          if r//8 == i//8 and (board[r] == 0 or IsPlayer(board, r, opponent)):
-            moves += [r]
+            InsertSort(moves, r)
       else:
          l, r = i - 2, i + 2
          if l//8 == i//8 and (board[l] == 0 or IsPlayer(board, l, opponent)):
-            moves += [l]
+            InsertSort(moves, l)
          if r//8 == i//8 and (board[r] == 0 or IsPlayer(board, r, opponent)):
-            moves += [r]
+            InsertSort(moves, r)
    return moves
 
 def GetBishopMoves(board, position, player, opponent, row):
@@ -173,14 +193,14 @@ def GetBishopMoves(board, position, player, opponent, row):
       index = position + 8*n + directions[j]*n
       if InBoard(index) and abs(index//8 - row) == abs(n):
          if board[index] == 0:
-            moves += [index]
+            InsertSort(moves, index)
             continue
          elif IsPlayer(board, index, opponent):
-            moves += [index]
+            InsertSort(moves, index)
          directions[j] = 0
       else:
          directions[j] = 0
-   return moves   
+   return moves  
 
 def GetRookMoves(board, position, player, opponent, row):
    moves, directions, n, j = [], [[1, 1], [-1, 1], [0, 1], [0, 1]], 1, -1
@@ -194,27 +214,52 @@ def GetRookMoves(board, position, player, opponent, row):
       index = position + 8*n*directions[j][0] + n*directions[abs(3 - j)][0]
       if InBoard(index) and abs(index//8 - row) == abs(n*directions[j][0]):
          if board[index] == 0:
-            moves += [index]
+            InsertSort(moves, index)
             continue
          elif IsPlayer(board, index, opponent):
-            moves += [index]
+            InsertSort(moves, index)
          directions[j][1] = 0
       else:
          directions[j][1] = 0
-   return moves
+   return moves 
 
 def GetQueenMoves(board, position, player, opponent, row):
-   pass
+   moves = []
+   InsertSort(moves, GetBishopMoves(board, position, player, opponent, row))
+   InsertSort(moves, GetRookMoves(board, position, player, opponent, row))
+   return moves
 
 def GetKingMoves(board, position, player, opponent, row):
-   pass
+   moves = []
+   factor = 1
+   for i in range(position + 7, position + 10, 1):
+      if not InBoard(i) or i//8 != row + 1:
+         continue
+      for j in range(i, i - 8*3, -8):
+         if j == position:
+            continue
+         elif InBoard(j) and not IsPlayer(board, i, player):
+            print(IsPlayer(board, i, player))
+            InsertSort(moves, j)
+   return moves
+
+def isPositionUnderThreat(board, opponent_board, postion):
+   for i in opponent_board:
+      moves = GetPieceLegalMoves(board, i)
+      if postion in moves:
+         return True
+   return False
 
 def test():
    board = GenBoard()
    #DisplayBoard(board)
    IndexBoard()
-   moves = GetPieceLegalMoves(board, 35)
+   moves = GetPieceLegalMoves(board, 11)
    print(moves)
-   return True  
+   white_positions, black_positions = PlayerPieces(board)
+   a = isPositionUnderThreat(board, white_positions, 40)
+   print(a)
+   return True 
 
 test()
+print("--- %s seconds ---" % (time() - start_time))
