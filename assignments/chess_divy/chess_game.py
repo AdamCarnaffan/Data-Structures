@@ -1,4 +1,4 @@
-from ChessLib import GenBoard, InBoard, GetPieceLegalMoves, DisplayBoard
+from ChessLib_org import GenBoard, InBoard, GetPieceLegalMoves, DisplayBoard
 
 def two_player():
     board = GenBoard()
