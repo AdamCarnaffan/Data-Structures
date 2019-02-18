@@ -1,6 +1,3 @@
-from time import time
-start_time = time()
-
 def DisplayBoard(board):  # not needed
    display = ""
    for i in range(7, -1, -1):  # row
@@ -62,7 +59,7 @@ def IndexBoard():  # not needed
    print(display)
    return True
 
-def InsertSort(array, data):  # array should be altered, want to avoid creating new boards, similar to C_language
+def InsertSort(array, data):
    if type(data) != list:
       array += [data]
    else:
@@ -109,9 +106,6 @@ def GenBoard():
          else:  # b king
             board += [25]
    return board
-
-def PlayerPieces(board):
-   return [GetPlayerPositions(board, 10), GetPlayerPositions(board, 20)]
 
 def InBoard(index):
    if index < 0 or index > 63:
@@ -242,24 +236,3 @@ def GetKingMoves(board, position, player, opponent, row):
             print(IsPlayer(board, i, player))
             InsertSort(moves, j)
    return moves
-
-def isPositionUnderThreat(board, opponent_board, postion):
-   for i in opponent_board:
-      moves = GetPieceLegalMoves(board, i)
-      if postion in moves:
-         return True
-   return False
-
-def test():
-   board = GenBoard()
-   #DisplayBoard(board)
-   IndexBoard()
-   moves = GetPieceLegalMoves(board, 11)
-   print(moves)
-   white_positions, black_positions = PlayerPieces(board)
-   a = isPositionUnderThreat(board, white_positions, 40)
-   print(a)
-   return True 
-
-test()
-print("--- %s seconds ---" % (time() - start_time))
