@@ -29,18 +29,24 @@ def BubbleSort(array):
          break
    return True
 
-
 def BinarySearch(array, data):
    start, end = 0, len(array) - 1
    while start <= end:
       middle = (end + start)//2
       mid_val = array[middle]
       if mid_val == data:
-         return True
+         return middle
       elif mid_val < data:
          start = middle + 1
       else:
          end = middle - 1
+   return -1
+
+def IsPositionUnderThreat(board, opponent_board, postion):
+   for i in opponent_board:
+      moves = GetPieceLegalMoves(board, i)
+      if postion in moves:
+         return True
    return False
 
 def InBoard(index):
@@ -53,39 +59,164 @@ def IsPlayer(board, index, player):
       return False
    return True
 
-def PieceValue(piece):
-   if piece == 10:  # pawns
+def GenOpponent(player):
+   if player == 10:
+      return 20
+   elif player == 20:
       return 10
-   elif piece == 20:
-      return -10
-   elif piece == 11:  # knights
-      return 25
-   elif piece == 21:
-      return -25
-   elif piece == 12:  # bishops
-      return 25
-   elif piece == 22:  
-      return -25
-   elif piece == 13:  # rooks
-      return 50
-   elif piece == 23:
-      return -50
-   elif piece == 14:  # quuens
-      return 100
-   elif piece == 24:
-      return -100
-   elif piece == 15:  # kings
-      return 790
-   elif piece == 25:
-      return -790
    return False
 
-def IsPositionUnderThreat(board, opponent_board, postion):
-   for i in opponent_board:
-      moves = GetPieceLegalMoves(board, i)
-      if postion in moves:
-         return True
+def PieceValue(piece):
+   if piece == 10:  # pawns
+      return 25
+   elif piece == 20:
+      return -25
+   elif piece == 11:  # knights
+      return 50
+   elif piece == 21:
+      return -50
+   elif piece == 12:  # bishops
+      return 55
+   elif piece == 22:  
+      return -55
+   elif piece == 13:  # rooks
+      return 75
+   elif piece == 23:
+      return -75
+   elif piece == 14:  # quuens
+      return 175
+   elif piece == 24:
+      return -175
+   elif piece == 15:  # kings
+      return 1000
+   elif piece == 25:
+      return -1000
    return False
+
+def PositionRadius(position):
+   if position in [27, 28, 35, 26]:
+      return 0
+   c1 = 0
+   while (position - c1) % 8 != 0:
+      c1 += 1
+   if c1 == 0 or c1 == 7 or position - c1 == 56 or position - c1 == 0:
+      return 3
+   row = position//8
+   if row == 1 or row == 6 or (position + 2) % 8 == 0 or (position - 1) % 8 == 0:
+      return 2
+   else:
+      return 1
+
+def PositionValue(piece_id, position):
+   player = (piece_id//10) * 10
+   if player == 10:
+      factor = 1
+   else:
+      factor = -1
+   piece_type = int(str(piece_id)[1])
+   pr_functions = [PawnPV, KnightPV, BishopPV, RookPV, QueenPV, KingPV]
+   return pr_functions[piece_type](factor, position)
+
+def PawnPV(factor, position):
+   value = PositionRadius(position)
+   if value == 0:
+      return 50 * factor
+   elif value == 1:
+      return 25 * factor
+   elif value == 2:
+      return 0 * factor
+   else:
+      return -10 * factor
+
+def KnightPV(factor, position):
+   value = PositionRadius(position)
+   if value == 0:
+      return 0 * factor
+   elif value == 1:
+      return 50 * factor
+   elif value == 2:
+      return 25 * factor
+   else:
+      return -10 * factor
+
+def BishopPV(factor, position):
+   value = PositionRadius(position)
+   if value == 0:
+      return 0 * factor
+   elif value == 1:
+      return 25 * factor
+   elif value == 2:
+      return 50 * factor
+   else:
+      return 10 * factor
+
+def RookPV(factor, position):
+   value = PositionRadius(position)
+   if value == 0 or value == 1:
+      return 25 * factor
+      return 25 * factor
+   elif value == 2:
+      return 40 * factor
+   else:
+      return 50 * factor
+
+def QueenPV(factor, position):
+   value = PositionRadius(position)
+   if value == 0:
+      return 20 * factor
+   elif value == 1:
+      return 10 * factor
+   elif value == 2:
+      return 50 * factor
+   else:
+      return 50 * factor
+
+def KingPV(factor, position):
+   value = PositionRadius(position)
+   if value == 0:
+      return 10 * factor
+   elif value == 1:
+      return 25 * factor
+   elif value == 2:
+      return 40 * factor
+   else:
+      return 70 * factor
+
+def OptionsRating(piece_id, moves):
+   player = (piece_id//10) * 10
+   if player == 10:
+      factor = 1
+   else:
+      factor = -1
+   piece_type = int(str(piece_id)[1])
+   if piece_id == 5:
+      return KingOR(moves, factor)
+   else:
+      return MoreOR(moves, factor)
+
+def KingOR(moves, factor):
+   return (8 - len(moves)) * 10 * factor
+
+def MoreOR(moves, factor):
+   return len(moves) * 10 * factor
+
+def RooksConnected(player_board, player):
+   r = 13
+   if player == 20:
+      r = 23
+   index = BinarySearch(player_board, [r])
+   if index == -1:
+      return 0
+   elif player_board[index + 1] == r:
+      second = index + 1
+   elif player_board[index - 1] == r:
+      second = index - 1
+   else:
+      return 0
+   if BinarySearch(player_board[index][2], player_board[second][1]) == -1:
+      return 0
+   else:
+      return -75
 
 def GenBoard():
    board = []
@@ -118,7 +249,6 @@ def GenBoard():
             board += [24]
          else:  # b king
             board += [25]
-   board[35] = 25
    return board
 
 def GetPlayerPositions(board, player):  # location of all player pieces
@@ -136,8 +266,8 @@ def GenPlayerData(board):  # [piece, position, [availible moves]]
       player_data[i] = GetPlayerPositions(board, (i+1)*10)
       for j in range(0, len(player_data[i]), 1):
          player_data[i][j] = [board[player_data[i][j]]] + [player_data[i][j]] + [GetPieceLegalMoves(board, player_data[i][j])]
-      #BubbleSort(player_data[i])
-   return player_data 
+      BubbleSort(player_data[i])
+   return player_data
 
 # Piece Move Functions
 def GetPieceLegalMoves(board, position):  # legal moves of piece at position
@@ -250,10 +380,12 @@ def GetKingMoves(board, position, player, opponent, row):
             InsertSort(moves, j)
    return moves
 
+def MovePieceT(board, pd, player, cur_pos, new_pos):  
+   return True
+
 def test():
    board = GenBoard()
    IndexBoard()
    a = GenPlayerData(board)
    print("--- %s seconds ---" % (time() - start_time))
    return True
-
