@@ -1,7 +1,3 @@
-from time import time
-from helpers import *
-start_time = time()
-
 def InsertSort(array, data):
    if type(data) != list:
       array += [data]
@@ -13,6 +9,18 @@ def InsertSort(array, data):
       for j in range(i, len(array) - i - 1, -1):
          if array[j] < array[j - 1]:
             array[j], array[j - 1] = array[j - 1], array[j]
+            swap_flag = True
+      if not swap_flag:
+         break
+   return True
+
+def InsertSortNodes(array, nodes):  # sorting by score
+   array += [nodes]
+   for i in range(len(array) - 1, 0, -1):
+      swap_flag = False
+      for j in range(i, len(array) - i - 1, -1):
+         if array[j].score < array[j - 1].score:
+            array[j], array[j - 1]= array[j - 1], array[j]
             swap_flag = True
       if not swap_flag:
          break
@@ -42,10 +50,22 @@ def BinarySearch(array, data):
          end = middle - 1
    return -1
 
-def IsPositionUnderThreat(board, opponent_board, postion):
+def BinarySearchPDPos(array, data):
+   start, end = 0, len(array) - 1
+   while start <= end:
+      middle = (end + start)//2
+      mid_val = array[middle][1]
+      if mid_val == data:
+         return middle
+      elif mid_val < data:
+         start = middle + 1
+      else:
+         end = middle - 1
+   return -1
+
+def IsPositionUnderThreat(board, opponent_board, position):
    for i in opponent_board:
-      moves = GetPieceLegalMoves(board, i)
-      if postion in moves:
+      if BinarySearch(i[2], position) != -1:
          return True
    return False
 
@@ -66,32 +86,29 @@ def GenOpponent(player):
       return 10
    return False
 
+def PieceType(piece):
+   if piece == 0:
+      return -1
+   return int(str(piece)[1])
+
 def PieceValue(piece):
-   if piece == 10:  # pawns
-      return 25
-   elif piece == 20:
-      return -25
-   elif piece == 11:  # knights
-      return 50
-   elif piece == 21:
-      return -50
-   elif piece == 12:  # bishops
-      return 55
-   elif piece == 22:  
-      return -55
-   elif piece == 13:  # rooks
-      return 75
-   elif piece == 23:
-      return -75
-   elif piece == 14:  # quuens
-      return 175
-   elif piece == 24:
-      return -175
-   elif piece == 15:  # kings
-      return 1000
-   elif piece == 25:
-      return -1000
-   return False
+   pt = PieceType(piece)
+   factor = -1
+   if piece//10 == 1:
+      factor = 1
+   if pt == 0:
+      return 25 * factor
+   elif pt == 1:
+      return 50 * factor
+   elif pt == 2:
+      return 55 * factor
+   elif pt == 3:
+      return 75 * factor
+   elif pt == 4:
+      return 150 * factor
+   elif pt == 5:
+      return 1000 * factor
+   return 0
 
 def PositionRadius(position):
    if position in [27, 28, 35, 26]:
@@ -113,7 +130,7 @@ def PositionValue(piece_id, position):
       factor = 1
    else:
       factor = -1
-   piece_type = int(str(piece_id)[1])
+   piece_type = PieceType(piece_id)
    pr_functions = [PawnPV, KnightPV, BishopPV, RookPV, QueenPV, KingPV]
    return pr_functions[piece_type](factor, position)
 
@@ -122,11 +139,11 @@ def PawnPV(factor, position):
    if value == 0:
       return 50 * factor
    elif value == 1:
-      return 25 * factor
+      return 30 * factor
    elif value == 2:
       return 0 * factor
    else:
-      return -10 * factor
+      return 100 * factor
 
 def KnightPV(factor, position):
    value = PositionRadius(position)
@@ -184,39 +201,36 @@ def KingPV(factor, position):
 
 def OptionsRating(piece_id, moves):
    player = (piece_id//10) * 10
+   or_functions = [MoreOR, MoreOR, MoreOR, MoreOR, MoreOR, KingOR]
    if player == 10:
       factor = 1
    else:
       factor = -1
-   piece_type = int(str(piece_id)[1])
-   if piece_id == 5:
-      return KingOR(moves, factor)
-   else:
-      return MoreOR(moves, factor)
-
-def KingOR(moves, factor):
-   return (8 - len(moves)) * 10 * factor
+   piece_type = PieceType(piece_id)
+   return or_functions[piece_type](moves, factor)
 
 def MoreOR(moves, factor):
    return len(moves) * 10 * factor
 
-def RooksConnected(player_board, player):
-   r = 13
-   if player == 20:
-      r = 23
-   index = BinarySearch(player_board, [r])
-   if index == -1:
-      return 0
-   elif player_board[index + 1] == r:
-      second = index + 1
-   elif player_board[index - 1] == r:
-      second = index - 1
-   else:
-      return 0
-   if BinarySearch(player_board[index][2], player_board[second][1]) == -1:
-      return 0
-   else:
-      return -75
+def KingOR(moves, factor):
+   return (8 - len(moves)) * 10 * factor
+
+def RooksConnected(player_data):
+   score = 0
+   for i in range(0, 2, 1):
+      player = (i + 1) * 10
+      rook_id, indices = player + 3, []
+      for j in range(0, len(player_data[i]), 1):
+         if player_data[i][j][0] == rook_id:
+            indices += [j]
+            if len(indices) == 2:
+               if BinarySearch(player_data[i][indices[0]][2], player_data[i][indices[1]][0]) != -1:
+                  factor = 1
+                  if player == 10:
+                     factor = -1
+                  score += 50 * factor
+                  break
+   return score
 
 def GenBoard():
    board = []
@@ -230,10 +244,10 @@ def GenBoard():
             board += [11]
          elif i == 2 or i == 5:  # w bishops
             board += [12]
-         elif i == 3:  # queen
-            board += [14]
-         else:  # b king
+         elif i == 3:  # w king
             board += [15]
+         else:  # w queen
+            board += [14]
       elif i <= 15:  # w pawns
          board += [10]
       elif i >= 48 and i <=55:  # b pawns 
@@ -245,15 +259,13 @@ def GenBoard():
             board += [21]
          elif i == 58 or i == 61:  # b bishops
             board += [22]
-         elif i == 59:  # b queen
-            board += [24]
-         else:  # b king
+         elif i == 59:  # b king
             board += [25]
+         else:  # b queen
+            board += [24]
    return board
 
-def GetPlayerPositions(board, player):  # location of all player pieces
-   if (player != 10 or player != 20) and type(board) != list:
-      return False
+def GetPlayerPositions(board, player):
    positions = []
    for i in range(0, 64, 1):
       if IsPlayer(board, i, player):
@@ -262,21 +274,21 @@ def GetPlayerPositions(board, player):  # location of all player pieces
 
 def GenPlayerData(board):  # [piece, position, [availible moves]]
    player_data = [[], []]
-   for i in range(0, len(player_data), 1):
+   for i in range(0, 2, 1):
       player_data[i] = GetPlayerPositions(board, (i+1)*10)
       for j in range(0, len(player_data[i]), 1):
          player_data[i][j] = [board[player_data[i][j]]] + [player_data[i][j]] + [GetPieceLegalMoves(board, player_data[i][j])]
-      BubbleSort(player_data[i])
+      #BubbleSort(player_data[i])
    return player_data
 
-# Piece Move Functions
-def GetPieceLegalMoves(board, position):  # legal moves of piece at position
-   if position < 0 or position > 63 or type(board) != list or board[position] == 0:
+def GetPieceLegalMoves(board, position):
+   piece = board[position]
+   if piece == 0:
       return False
    move_functions = [GetPawnMoves, GetKnightMoves, GetBishopMoves, GetRookMoves, GetQueenMoves, GetKingMoves]
    current_row = position//8  # between 0 to 7
-   player, opponent = board[position]//10 * 10, 20
-   piece_type = int(str(board[position])[1])
+   player, opponent = piece//10 * 10, 20
+   piece_type = PieceType(piece)
    if player == 20:
       opponent = 10
    return move_functions[piece_type](board, position, player, opponent, current_row)
@@ -380,12 +392,30 @@ def GetKingMoves(board, position, player, opponent, row):
             InsertSort(moves, j)
    return moves
 
-def MovePieceT(board, pd, player, cur_pos, new_pos):  
-   return True
+class Queue:
 
-def test():
-   board = GenBoard()
-   IndexBoard()
-   a = GenPlayerData(board)
-   print("--- %s seconds ---" % (time() - start_time))
-   return True
+   def __init__(self):
+      self.store = []
+   
+   def put(self, data):
+      self.store += [data]
+      return True
+   
+   def get(self):
+      data = self.store[0]
+      self.store = self.store[1:]
+      return data
+
+class Stack:
+
+   def __init__(self):
+      self.store = []
+   
+   def push(self, data):
+      self.store += [data]
+      return True
+   
+   def pop(self):
+      data = self.store[-1]
+      self.store = self.store[:-1]
+      return data

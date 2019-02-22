@@ -1,32 +1,32 @@
 from time import time
-from queue import Queue
+from helpers import *
 from chessTree import *
 
 
 start_time = time()
 
-
 def chessPlayer(board, player):
-   IndexBoard()
+   status, move, candidiateMoves, evalTree = True, [], [], []
    root = Tree(board, player, GenPlayerData(board))
-   brain = Queue()
-   brain.put(root)
-   while True:
-      curr = brain.get()
-      opp = GenOpponent(curr.player)//10
-      player = curr.player//10
-      for i in curr.fetchpdata(player - 1):
-         for j in i[2]:
-            IsPositionUnderThreat(board, curr.fetchpd())
-            new_board = list(curr.fetchboard)
-            new_pd = list(curr.fetchpd())
-            MovePieceT(new_board, new_pd, player, i[1], j, i[0])
-            move = [j, i[1], i[0]]
+   q = Queue()
+   q.put(root)
+   temp = 0
+   indexBoard()
+   printBoard(board)
+   while time() - start_time < 10:
+      node = q.get()
+      node.gennexts(q)
+      temp += 1
+      if temp == 1:
+         root.disptree()
+         break
+   if move == []:
+      status = False
+   
+   
+   return [status, move, candidiateMoves, evalTree]
 
-
-      break
-   print("---", time() - start_time, "seconds ---")
-   return True
-
-
-chessPlayer(GenBoard(), 10)
+#remove later:
+current_board = GenBoard()
+print(chessPlayer(current_board, 10))
+print("---", time() - start_time, "seconds ---")
