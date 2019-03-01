@@ -1,6 +1,4 @@
 from ChessLib import *
-from copy import deepcopy
-
 
 class evalTree:
 
@@ -15,87 +13,60 @@ class evalTree:
    
    def genscore(self):
       score = 0
-      for i in range(0, max(len(self.pd[0]), len(self.p[1])), 1):
+      for i in range(0, max(len(self.pd[0]), len(self.pd[1])), 1):
          for j in range(0, 2, 1):
             if i >= len(self.pd[j]):
                continue
-            score += PieceValue(self.p_data[j][i][0])
-            score += PositionValue(self.p_data[j][i][0], self.p_data[j][i][1])
-            score += OptionsRating(self.p_data[j][i][0], self.p_data[j][i][2])
-      score += RooksConnected(self.p_data)
+            score += PieceValue(self.pd[j][i][0])
+            score += PositionValue(self.pd[j][i][0], self.pd[j][i][1])
+            score += OptionsRating(self.pd[j][i][0], self.pd[j][i][2])
+      score += RooksConnected(self.pd)
+      score += SafetyRating(self.player, self.pd)
+      score += SafetyRating(GenOpponent(self.player), self.pd)
       return score
 
-   def evalnext()
-
-
-class Tree:
-
-   def __init__(self, board, player, players_data, move=[], depth=0):
-      self.board = board
-      self.player = player
-      self.p_data = players_data
-      self.next = []
-      self.moveinfo = move
-      self.depth = depth
-      self.score = self.genscore()
+   def evalnext(self, q):
+      p_index = self.player//10 - 1
+      for i in range(0, len(self.pd[p_index]), 1):
+         if self.pd[p_index][i][2] == []:
+            continue
+         for j in self.pd[p_index][i][2]:
+            nB = list(self.board)
+            npd = [[], []]
+            opp = GenOpponent(self.player)
+            o_index = opp//10 - 1
+            for n1 in range(0, len(self.pd), 1):
+               npd[n1] = list(self.pd[n1])
+               for n2 in range(0, len(self.pd[n1]), 1):
+                  npd[n1][n2] = list(self.pd[n1][n2])
+                  npd[n1][n2][2] = list(self.pd[n1][n2][2])
+            if IsPlayer(nB, j, self.player):
+               """print(self.player, self.depth)
+               print("-------")
+               print(npd[p_index], "j is:", j, "i is", i)
+               print(nB)"""
+               raise ValueError("Clearly player data contains incorrect moves")
+            elif IsPlayer(nB, j, opp):
+               delete = BinarySearchPDPos(npd[o_index], j)
+               if delete == -1:
+                  raise ValueError("delete is clearly broken - there is enemy there")
+               npd[o_index] = npd[o_index][:delete] + npd[o_index][delete + 1:]
+            nM = [npd[p_index][i][0], npd[p_index][i][1], j]
+            nB[npd[p_index][i][1]] = 0
+            nB[j] = npd[p_index][i][0]
+            npd[p_index][i][2] = GetPieceLegalMoves(nB, j)
+            npd[p_index][i][1] = j
+            for p1 in range(0, len(npd[p_index]), 1):
+               if BinarySearch(npd[p_index][p1][2], j) != -1:
+                  npd[p_index][p1][2] = GetPieceLegalMoves(nB, npd[p_index][p1][1])
+            BubbleSortPDPos(npd[p_index])
+            node = evalTree(nB, opp, npd, self.depth + 1, nM)
+            InsertSortNodes(self.next, node)
+            q.put(node)
+      return True
 
    def fetchscore(self):
       return self.score
-
-   def fetchboard(self):
-      return self.board
-   
-   def fetchplayer(self):
-      return self.player
-
-   def fetchpd(self, index=-1):
-      if index == 0 or index == 1:
-         return self.p_data[index]
-      elif index == -1:
-         return self.p_data
-      return False   
-
-   def genscore(self):
-      score = 0
-      for i in range(0, max(len(self.p_data[0]), len(self.p_data[1])), 1):
-         for j in range(0, 2, 1):
-            if len(self.p_data[j]) > i:
-               score += PieceValue(self.p_data[j][i][0])
-               score += PositionValue(self.p_data[j][i][0], self.p_data[j][i][1])
-               score += OptionsRating(self.p_data[j][i][0], self.p_data[j][i][2])
-      score += RooksConnected(self.p_data)
-      return score
-
-   def gennexts(self, q):
-      pd_index = self.player//10 - 1
-      for i in range(0, len(self.p_data[pd_index]), 1):
-         if self.p_data[pd_index][i][2] == []:
-            continue
-         piecenodes = []
-         for j in self.p_data[pd_index][i][2]:
-            new_board, new_pd = list(self.board), deepcopy(self.p_data)
-            opp_index = GenOpponent(self.player)//10 - 1
-            if new_board[j] != 0:
-               rmv = BinarySearchPDPos(new_pd[opp_index], j)
-               new_pd[opp_index] = new_pd[opp_index][:rmv] + new_pd[opp_index][rmv + 1:]
-            new_board[new_pd[pd_index][i][1]], new_board[j] = 0, new_pd[pd_index][i][0]
-            m = [new_pd[pd_index][i][0], new_pd[pd_index][i][1], j]
-            new_pd[pd_index][i][1] = j
-            new_pd[pd_index][i][2] = GetPieceLegalMoves(new_board, j)
-            node = Tree(new_board, (opp_index + 1) * 10, new_pd, m, self.depth + 1)
-            InsertSortNodes(piecenodes, node)
-
-         best_node = self.bestscore(piecenodes)
-         InsertSortNodes(self.next, best_node)
-         q.put(best_node)
-      return True
-
-   def bestscore(self, piecenodes):
-      if self.player == 10:
-         return piecenodes[:-1]
-      elif self.player == 20:
-         return piecenodes[0]
-      return False
 
    def disptree(self):  # remove later
       s = Stack()
@@ -104,8 +75,8 @@ class Tree:
       while len(s.store) != 0:
          indent = s.pop()
          node = s.pop()
-         print(indent + str(node.score)+":"+str(node.depth)+":"+str(node.player)+str(node.moveinfo))
+         print(indent + str(node.score)+":"+str(node.depth)+":"+str(node.player)+str(node.move))
          for i in node.next:
             s.push(i)
             s.push(indent + "   ")
-      return
+      return True

@@ -15,7 +15,11 @@ def InsertSort(array, data):
    return True
 
 def InsertSortNodes(array, nodes):  # sorting by score
-   array += [nodes]
+   if type(nodes) != list:
+      array += [nodes]
+   elif nodes != []:
+      array += [nodes[0]]
+      InsertSortNodes(array, nodes[1::])
    for i in range(len(array) - 1, 0, -1):
       swap_flag = False
       for j in range(i, len(array) - i - 1, -1):
@@ -32,6 +36,21 @@ def BubbleSort(array):
       for j in range(0, len(array) - 1 - i, 1):
          if array[j] > array[j + 1]:
             array[j], array[j + 1] = array[j + 1], array[j]
+            swap_flag = True
+      if not swap_flag:
+         break
+   return True
+
+def BubbleSortPDPos(array):
+   for i in range(0, len(array), 1):
+      swap_flag = False
+      for j in range(0, len(array) - 1 - i, 1):
+         if array[j][1] > array[j + 1][1]:
+            swap = list(array[j])
+            swap[2] = list(array[j][2])
+            array[j] = list(array[j + 1])
+            array[j][2] = list(array[j + 1][2])
+            array[j + 1] = list(swap)
             swap_flag = True
       if not swap_flag:
          break
@@ -63,11 +82,24 @@ def BinarySearchPDPos(array, data):
          end = middle - 1
    return -1
 
-def IsPositionUnderThreat(board, opponent_board, position):
-   for i in opponent_board:
-      if BinarySearch(i[2], position) != -1:
+def IsPositionUnderThreat(opponent_board, position):
+   for i in range(0, len(opponent_board), 1):
+      if BinarySearch(opponent_board[i][2], position) != -1:
          return True
    return False
+
+def SafetyRating(player, pd):
+   p_i = player//10 - 1
+   o_i = GenOpponent(player)//10 - 1
+   score = 0
+   factor = 1
+   if player == 10:
+      factor = -1
+   for i in range(0, len(pd[p_i]), 1):
+      if not IsPositionUnderThreat(pd[o_i], pd[p_i][i][1]):
+         continue
+      score += PieceValue(pd[p_i][i][0]) * factor
+   return score
 
 def InBoard(index):
    if index < 0 or index > 63:
@@ -97,15 +129,15 @@ def PieceValue(piece):
    if piece//10 == 1:
       factor = 1
    if pt == 0:
-      return 25 * factor
-   elif pt == 1:
       return 50 * factor
-   elif pt == 2:
-      return 55 * factor
-   elif pt == 3:
+   elif pt == 1:
       return 75 * factor
+   elif pt == 2:
+      return 75 * factor
+   elif pt == 3:
+      return 100 * factor
    elif pt == 4:
-      return 150 * factor
+      return 200 * factor
    elif pt == 5:
       return 1000 * factor
    return 0
@@ -228,7 +260,7 @@ def RooksConnected(player_data):
                   factor = 1
                   if player == 10:
                      factor = -1
-                  score += 50 * factor
+                  score += 25 * factor
                   break
    return score
 
@@ -277,8 +309,8 @@ def GenPlayerData(board):  # [piece, position, [availible moves]]
    for i in range(0, 2, 1):
       player_data[i] = GetPlayerPositions(board, (i+1)*10)
       for j in range(0, len(player_data[i]), 1):
-         player_data[i][j] = [board[player_data[i][j]]] + [player_data[i][j]] + [GetPieceLegalMoves(board, player_data[i][j])]
-      #BubbleSort(player_data[i])
+         pos = player_data[i][j]
+         player_data[i][j] = [board[pos]] + [pos] + [GetPieceLegalMoves(board, pos)]
    return player_data
 
 def GetPieceLegalMoves(board, position):
@@ -371,7 +403,7 @@ def GetRookMoves(board, position, player, opponent, row):
          directions[j][1] = 0
       else:
          directions[j][1] = 0
-   return moves 
+   return moves
 
 def GetQueenMoves(board, position, player, opponent, row):
    moves = []
