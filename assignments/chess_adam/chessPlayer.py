@@ -6,9 +6,8 @@ ALPHA = 90
 BETA = 55
 GAMMA = 10
 THETA = 25
-
-
 MODS = [ALPHA, BETA, GAMMA, THETA]
+
 class Queue:
 
    def __init__(self):
@@ -161,15 +160,20 @@ class Data_Node:
       return self.move
 
 
-def sample_move(board, player, king):
+def sample_move(board, player, isMove):
    pieces = GetPlayerPositions(board, player)
    mvs = []
-   plKing = find_king(board, player) if king else -1
+   # Add bias to pieces that can take
+   step = 0
+   plKing = find_king(board, player) if isMove else -1
    while len(mvs) < 1:
       pc = pieces[rd.randint(0, len(pieces)-1)]
       mvs = GetPieceLegalMoves(board, pc, plKing)
-      if len(mvs) < 1 and king != -1:
-         ll = find_king_safe_moves(board, player, king)
+      step = step + 1
+      if isMove and not moves_take(board, mvs) and step < 4:
+         continue
+      if len(mvs) < 1 and plKing != -1:
+         ll = find_king_safe_moves(board, player, plKing)
          if len(ll) < 1:
             return []
          mvs = ll[1]
@@ -179,13 +183,18 @@ def sample_move(board, player, king):
 
 def find_king_safe_moves(board, player, king):
    mvs = []
-   kng = find_king(board, player)
    for p in GetPlayerPositions(board, player):
-      v = GetPieceLegalMoves(board, p, kng)
+      v = GetPieceLegalMoves(board, p, king)
       if len(v) > 0:
          mvs = mvs + [[p, v]]
          break
    return [mvs[0][0], mvs[0][1]]
+
+def moves_take(board, moves):
+   for v in moves:
+      if board[v] != 0:
+         return True
+   return False
 
 def find_king(board, player):
    st = 0 if player == 1 else 63
@@ -215,7 +224,7 @@ def GetPlayerPositions(board, player):
    return final
 
 def IsPositionUnderThreat(board, position, player):
-   opp = 2 if player == 1 else 1
+   opp = 2 if player == 10 else 1
    mvs = []
    for v in range(0, 64, 1):
       if (int(str(board[position])[0]) == opp):
@@ -228,13 +237,26 @@ def GetPieceLegalMoves(board, position, kingP):
    validMove = [pawn, knight, bishop, rook, queen, king]
    pieceType = int(str(board[position])[-1])
    player = int(str(board[position])[0])
+   opp = "2" if player == 1 else "1"
    final = []
    for v in range(0, 64, 1):
       if (validMove[pieceType](position, v, player) and positionIsAvailable(board, player, v) and not getCollisions(board, pieceType, position, v)):
+         if pieceType == 0 and board[v] != 0:
+            continue
          if kingP != -1 and IsPositionUnderThreat(board, kingP, player*10):
             continue
          final += [v]
+      elif pieceType == 0 and pawnMove(position, v, player) and str(board[position])[0] == opp:
+         final += [v]
    return final
+
+def pawnMove(initial, final, player):
+   diff = final-initial
+   if player == 2 and diff > 6 and diff < 10:
+      return True
+   if player == 1 and diff > -10 and diff < -6:
+      return True
+   return False
 
 def get_path_points(f, i):
    if f == i:
@@ -286,9 +308,14 @@ def pawn(final, initial, player): # Don't work
       return True
    return False
 
-def knight(final, initial, player): # Don't work
-   diff = abs(final - initial)
-   if diff in [6, 10, 15, 17]:
+def knight(final, initial, player):
+   f = [final % 8, int(final / 8)]
+   i = [initial % 8, int(initial / 8)]
+   diffx = abs(i[0] - f[0])
+   diffy = abs(i[1] - f[1])
+   if diffx == 2 and diffy == 1:
+      return True
+   elif diffx == 1 and diffy == 2:
       return True
    return False
 
@@ -339,7 +366,7 @@ def chessPlayer(board: list, player: int) -> list:
       if state.expand():
          break
    # Selection from state
-   #state.visualize()
+   state.visualize()
    status = False
    if state.next != []:
       status = True
@@ -417,62 +444,61 @@ def display_board(board):
       print(line)
    return True
 
-
 def GD(board, player):
    print("=-=-=-=-=--=-=-=-=-=")
    print("Current Player: {0}".format(player))
    display_board(board)
    return True
 
+def see_indicies():
+   v = [i for i in range(0, 64)]
+   l = invert_list(v)
+   st = ""
+   for p in range(0, 64):
+      if p % 8 == 0:
+         print(st)
+         st = ""
+      st = st + " " + str(l[p])
+   print(st)
+   return True
+
 def main():
-   for _ in range(0, 10000, 1):
-      v = make_board()
-      v = add_pieces(v)
-      player = 10
-      moves = 0
-      score = [0, 0]
-      while moves < 30:
-         #GD(v, player)
-         t = time.time()
-         move = chessPlayer(v, player)
-         #print(time.time() - t)
-         try:
-            if not move[0]:
-               continue
-            pos = move[1][0]
-            new = move[1][1]
-            if pos == new:
-               continue
-         except:
-            print("Move input invalid")
+   v = make_board()
+   v = add_pieces(v)
+   player = 10
+   moves = 0
+   score = [0, 0]
+   while moves < 30:
+      GD(v, player)
+      t = time.time()
+      move = chessPlayer(v, player)
+      print(time.time() - t)
+      try:
+         if not move[0]:
             continue
-         if int(str(v[pos])[0])*10 != player or not (new in GetPieceLegalMoves(v, pos, -1)):
-            print("Move input invalid")
+         pos = move[1][0]
+         new = move[1][1]
+         if pos == new:
             continue
-         if v[new] != 0:
-            if player == 10:
-               score[0] += 10
-            else:
-               score[1] += 10
-         v[new] = v[pos]
-         v[pos] = 0
-         player = 20 if player == 10 else 10
-         moves = moves + 1
-      # Modify values
-      finalScore = score[0] - score[1]
-      print(MODS, "-->", finalScore)
-      for v in range(0,4):
-         l = rd.randint(-2,2)
-         if finalScore < 0:
-            if l == 0:
-               l = 1
-            MODS[v] = MODS[v] * mh.sqrt(MODS[v]) * l
-         elif finalScore > 0:
-            MODS[v] = MODS[v] + MODS[v]*0.08*l
+      except:
+         print("Move input invalid")
+         continue
+      if int(str(v[pos])[0])*10 != player or not (new in GetPieceLegalMoves(v, pos, -1)):
+         print("Move input invalid")
+         continue
+      kng = find_king(v, player)
+      if IsPositionUnderThreat(v, kng, player):
+         print("THREAT DETECTED")
+      if v[new] != 0:
+         if player == 10:
+            score[0] += 10
          else:
-            MODS[v] = MODS[v] + mh.log(MODS[v])*l
-      print("NEW MODS")
-      print(MODS, "-->", finalScore)
+            score[1] += 10
+      v[new] = v[pos]
+      v[pos] = 0
+      player = 20 if player == 10 else 10
+      moves = moves + 1
+      print("SCORE -->", score)
    return True
 
 main()
