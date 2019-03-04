@@ -2,11 +2,12 @@ import math as mh
 import time
 import random as rd
 
-ALPHA = 90
+ALPHA = 180
 BETA = 55
 GAMMA = 10
 THETA = 25
-MODS = [ALPHA, BETA, GAMMA, THETA]
+LAMBDA = 8
+MODS = [ALPHA, BETA, GAMMA, THETA, LAMBDA]
 
 class Queue:
 
@@ -59,7 +60,6 @@ class Data_Node:
       king = king + [find_king(board, 20)]
       takes = [0, 0]
       while not check_king(board, king[indMatch[ply]]):
-      # for pl in range(int(self.playing/10)-1, self.MoveLimit+self.playing, 1):
          mv = sample_move(board, ply, False)
          if len(mv) < 1:
             break
@@ -88,6 +88,8 @@ class Data_Node:
       if mv == []:
          new.score = -1000
          return 0
+      elif str(mv[1])[-1] == 5:
+         new.score -= 40
       new.make_move(mv)
       # Simulate to determine score
       new.play()
@@ -106,9 +108,9 @@ class Data_Node:
                best = n
                sms = self.sims
          if bestPar:
-            return self.simulate_node(isNeeded)
+            return -self.simulate_node(isNeeded)
          sc = best.build(self.sims)
-         self.score = self.score + sc
+         self.score = self.score + sc/LAMBDA
          return -sc
       else:
          return -self.simulate_node(isNeeded)
@@ -162,15 +164,18 @@ class Data_Node:
 
 def sample_move(board, player, isMove):
    pieces = GetPlayerPositions(board, player)
+   if len(pieces) < 1:
+      return []
    mvs = []
    # Add bias to pieces that can take
    step = 0
    plKing = find_king(board, player) if isMove else -1
    while len(mvs) < 1:
-      pc = pieces[rd.randint(0, len(pieces)-1)]
+      pc = pieces[rd.randint(0, len(pieces)-1)] if len(pieces) > 1 else pieces[0]
       mvs = GetPieceLegalMoves(board, pc, plKing)
       step = step + 1
-      if isMove and not moves_take(board, mvs) and step < 4:
+      if isMove and step < 4:
+         mvs = moves_take(board, mvs)
          continue
       if len(mvs) < 1 and plKing != -1:
          ll = find_king_safe_moves(board, player, plKing)
@@ -179,7 +184,7 @@ def sample_move(board, player, isMove):
          mvs = ll[1]
          pc = ll[0]
          break
-   return [pc, mvs[rd.randint(0, len(mvs)-1)]]
+   return [pc, mvs[rd.randint(0, len(mvs)-1)] if len(mvs) > 1 else mvs[0]]
 
 def find_king_safe_moves(board, player, king):
    mvs = []
@@ -191,10 +196,11 @@ def find_king_safe_moves(board, player, king):
    return [mvs[0][0], mvs[0][1]]
 
 def moves_take(board, moves):
+   final = []
    for v in moves:
       if board[v] != 0:
-         return True
-   return False
+         final = final + [v]
+   return final
 
 def find_king(board, player):
    st = 0 if player == 1 else 63
@@ -205,7 +211,7 @@ def find_king(board, player):
    return -1 
 
 def check_king(board, king): # King can get rekt
-   if king < 0 or (IsPositionUnderThreat(board, king, int(str(king)[0])*10)):
+   if str(board[king])[-1] != 5 or king < 0 or (IsPositionUnderThreat(board, king)):
       return True
    return False
 
@@ -223,14 +229,15 @@ def GetPlayerPositions(board, player):
          final += [ind]
    return final
 
-def IsPositionUnderThreat(board, position, player):
-   opp = 2 if player == 10 else 1
-   mvs = []
-   for v in range(0, 64, 1):
-      if (int(str(board[position])[0]) == opp):
-         mvs += GetPieceLegalMoves(board, v, -1)
-   if (position in mvs):
-      return True
+def IsPositionUnderThreat(board, position):
+   if position == 0:
+      return False
+   opp = 20 if str(board[position])[0] == "1" else 10
+   pcs = GetPlayerPositions(board, opp)
+   for v in pcs:
+      for m in GetPieceLegalMoves(board, v, -1):
+         if m == position:
+            return True
    return False
 
 def GetPieceLegalMoves(board, position, kingP):
@@ -243,8 +250,13 @@ def GetPieceLegalMoves(board, position, kingP):
       if (validMove[pieceType](position, v, player) and positionIsAvailable(board, player, v) and not getCollisions(board, pieceType, position, v)):
          if pieceType == 0 and board[v] != 0:
             continue
-         if kingP != -1 and IsPositionUnderThreat(board, kingP, player*10):
-            continue
+         if kingP != -1:
+            kng = kingP
+            if str(board[position])[-1] == "5":
+               kng = v
+            simBoard = move(board, [position, v])
+            if IsPositionUnderThreat(simBoard, kng):
+               continue
          final += [v]
       elif pieceType == 0 and pawnMove(position, v, player) and str(board[position])[0] == opp:
          final += [v]
@@ -366,7 +378,7 @@ def chessPlayer(board: list, player: int) -> list:
       if state.expand():
          break
    # Selection from state
-   state.visualize()
+   #state.visualize()
    status = False
    if state.next != []:
       status = True
@@ -463,8 +475,16 @@ def see_indicies():
    return True
 
 def main():
+   # see_indicies()
+   # return 
    v = make_board()
-   v = add_pieces(v)
+   # v = add_pieces(v)
+   v[4] = 15
+   v[20] = 24
+   v[60] = 25
+   v[0] = 10
+   v[1] = 11
+   v[63] = 21
    player = 10
    moves = 0
    score = [0, 0]
@@ -487,7 +507,7 @@ def main():
          print("Move input invalid")
          continue
       kng = find_king(v, player)
-      if IsPositionUnderThreat(v, kng, player):
+      if IsPositionUnderThreat(v, kng):
          print("THREAT DETECTED")
       if v[new] != 0:
          if player == 10:
