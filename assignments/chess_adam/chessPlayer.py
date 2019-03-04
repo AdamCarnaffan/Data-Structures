@@ -2,6 +2,13 @@ import math as mh
 import time
 import random as rd
 
+ALPHA = 90
+BETA = 55
+GAMMA = 10
+THETA = 25
+
+
+MODS = [ALPHA, BETA, GAMMA, THETA]
 class Queue:
 
    def __init__(self):
@@ -23,7 +30,7 @@ class Queue:
 
 class Data_Node:
 
-   Bias = 2
+   Bias = THETA
    MoveLimit = 30
 
    def __init__(self, board, playing):
@@ -55,6 +62,8 @@ class Data_Node:
       while not check_king(board, king[indMatch[ply]]):
       # for pl in range(int(self.playing/10)-1, self.MoveLimit+self.playing, 1):
          mv = sample_move(board, ply, False)
+         if len(mv) < 1:
+            break
          if board[mv[1]] != 0:
             takes[indMatch[ply]] += 1
          board = move(board, mv)
@@ -69,14 +78,18 @@ class Data_Node:
          self.over = True
       self.score = 1 if ply == self.playing else 0
       other = 10 if self.playing == 20 else 20
-      self.score = self.score*60 + 20*(takes[int(self.playing/10)-1]) - 10*(takes[int(other/10)-1])
+      self.score = self.score*ALPHA + BETA*(takes[int(self.playing/10)-1]) - GAMMA*(takes[int(other/10)-1])
       return True
 
    def simulate_node(self, isMove):
       # Generate new possibility
       new = Data_Node(self.board, self.playing)
       self.next = self.next + [new]
-      new.make_move(sample_move(new.board, new.playing, isMove))
+      mv = sample_move(new.board, new.playing, isMove)
+      if mv == []:
+         new.score = -1000
+         return 0
+      new.make_move(mv)
       # Simulate to determine score
       new.play()
       return new.score
@@ -99,7 +112,7 @@ class Data_Node:
          self.score = self.score + sc
          return -sc
       else:
-         return self.simulate_node(isNeeded)
+         return -self.simulate_node(isNeeded)
 
    def expand(self):
       if self.over:
@@ -155,7 +168,24 @@ def sample_move(board, player, king):
    while len(mvs) < 1:
       pc = pieces[rd.randint(0, len(pieces)-1)]
       mvs = GetPieceLegalMoves(board, pc, plKing)
+      if len(mvs) < 1 and king != -1:
+         ll = find_king_safe_moves(board, player, king)
+         if len(ll) < 1:
+            return []
+         mvs = ll[1]
+         pc = ll[0]
+         break
    return [pc, mvs[rd.randint(0, len(mvs)-1)]]
+
+def find_king_safe_moves(board, player, king):
+   mvs = []
+   kng = find_king(board, player)
+   for p in GetPlayerPositions(board, player):
+      v = GetPieceLegalMoves(board, p, kng)
+      if len(v) > 0:
+         mvs = mvs + [[p, v]]
+         break
+   return [mvs[0][0], mvs[0][1]]
 
 def find_king(board, player):
    st = 0 if player == 1 else 63
@@ -165,7 +195,7 @@ def find_king(board, player):
          return n
    return -1 
 
-def check_king(board, king):
+def check_king(board, king): # King can get rekt
    if king < 0 or (IsPositionUnderThreat(board, king, int(str(king)[0])*10)):
       return True
    return False
@@ -249,14 +279,14 @@ def getCollisions(board, piece, curr, targ):
          return True
    return False
 
-def pawn(final, initial, player):
+def pawn(final, initial, player): # Don't work
    if player == 2 and final-initial == 8:
       return True
    if player == 1 and initial-final == 8:
       return True
    return False
 
-def knight(final, initial, player):
+def knight(final, initial, player): # Don't work
    diff = abs(final - initial)
    if diff in [6, 10, 15, 17]:
       return True
@@ -309,9 +339,140 @@ def chessPlayer(board: list, player: int) -> list:
       if state.expand():
          break
    # Selection from state
-   state.visualize()
+   #state.visualize()
    status = False
    if state.next != []:
       status = True
    return [status, state.select_node().get_move(), state.fetch_candidates(player), state.traverse()] # [ status (bool), move ([piece, move]), candidateMoves (List of [move, weight] values), evalTree (None)]
 
+def make_board():
+   board = []
+   for _ in range(0, 8, 1):
+      for _ in range(0, 8, 1):
+         board = board + [0]
+   return board
+
+def add_pieces(board):
+   final = list(board)
+   pawnRow = 1
+   row = 0
+   for i in range(1, 3, 1):
+      # Pawns
+      for v in range(0, 8, 1):
+         final[pawnRow*8+v] = 10*i
+      # Knights
+      final[8*row+1] = 10*i + 1
+      final[8*row+6] = 10*i + 1
+      # Bishops
+      final[8*row+2] = 10*i + 2
+      final[8*row+5] = 10*i + 2
+      # Rooks
+      final[8*row] = 10*i + 3
+      final[8*row+7] = 10*i + 3
+      # Queen
+      final[8*row+3] = 10*i + 4
+      # King
+      final[8*row+4] = 10*i + 5
+      pawnRow = 6
+      row = 7
+   return final
+
+def invert_list(l):
+   if len(l) < 1:
+      return []
+   return [l[len(l)-1]] + invert_list(l[0:len(l)-1])
+
+def interp_piece(value, odd):
+   if value == 0:
+      if odd:
+         return "_"
+      else:
+         return "#"
+   plr = int(str(value)[0])
+   final = ""
+   pieceCode = int(str(value)[1]) # String is always 2 long by here
+   if pieceCode == 0:
+      final = "P"
+   elif pieceCode == 1:
+      final = "N" # I know this isn't the first letter
+   elif pieceCode == 2:
+      final = "B" 
+   elif pieceCode == 3:
+      final = "R"
+   elif pieceCode == 4:
+      final = "Q"
+   elif pieceCode == 5:
+      final = "K"
+   if plr == 1:
+      return final
+   else:
+      return final.lower()
+
+def display_board(board):
+   inv = invert_list(board)
+   for y in range(0, 8, 1):
+      line = ""
+      for x in range(0, 8, 1):
+         line = line + interp_piece(inv[y*8+x], (y + x) % 2)
+      print(line)
+   return True
+
+
+def GD(board, player):
+   print("=-=-=-=-=--=-=-=-=-=")
+   print("Current Player: {0}".format(player))
+   display_board(board)
+   return True
+
+def main():
+   for _ in range(0, 10000, 1):
+      v = make_board()
+      v = add_pieces(v)
+      player = 10
+      moves = 0
+      score = [0, 0]
+      while moves < 30:
+         #GD(v, player)
+         t = time.time()
+         move = chessPlayer(v, player)
+         #print(time.time() - t)
+         try:
+            if not move[0]:
+               continue
+            pos = move[1][0]
+            new = move[1][1]
+            if pos == new:
+               continue
+         except:
+            print("Move input invalid")
+            continue
+         if int(str(v[pos])[0])*10 != player or not (new in GetPieceLegalMoves(v, pos, -1)):
+            print("Move input invalid")
+            continue
+         if v[new] != 0:
+            if player == 10:
+               score[0] += 10
+            else:
+               score[1] += 10
+         v[new] = v[pos]
+         v[pos] = 0
+         player = 20 if player == 10 else 10
+         moves = moves + 1
+      # Modify values
+      finalScore = score[0] - score[1]
+      print(MODS, "-->", finalScore)
+      for v in range(0,4):
+         l = rd.randint(-2,2)
+         if finalScore < 0:
+            if l == 0:
+               l = 1
+            MODS[v] = MODS[v] * mh.sqrt(MODS[v]) * l
+         elif finalScore > 0:
+            MODS[v] = MODS[v] + MODS[v]*0.08*l
+         else:
+            MODS[v] = MODS[v] + mh.log(MODS[v])*l
+      print("NEW MODS")
+      print(MODS, "-->", finalScore)
+   return True
+
+main()
