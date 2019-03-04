@@ -54,7 +54,7 @@ class Data_Node:
       takes = [0, 0]
       while not check_king(board, king[indMatch[ply]]):
       # for pl in range(int(self.playing/10)-1, self.MoveLimit+self.playing, 1):
-         mv = sample_move(board, ply)
+         mv = sample_move(board, ply, False)
          if board[mv[1]] != 0:
             takes[indMatch[ply]] += 1
          board = move(board, mv)
@@ -62,28 +62,31 @@ class Data_Node:
             king[indMatch[ply]] = mv[1]
          ply = 20 if ply == 10 else 10
          stps = stps + 1
-         if stps > 65:
+         if stps > 35:
             ply = 3
             break
+      if stps == 0:
+         self.over = True
       self.score = 1 if ply == self.playing else 0
       other = 10 if self.playing == 20 else 20
-      self.score = self.score*60 + 10*(takes[int(self.playing/10)-1]-takes[int(other/10)-1])
+      self.score = self.score*60 + 20*(takes[int(self.playing/10)-1]) - 10*(takes[int(other/10)-1])
       return True
 
-   def simulate_node(self):
+   def simulate_node(self, isMove):
       # Generate new possibility
       new = Data_Node(self.board, self.playing)
       self.next = self.next + [new]
-      new.make_move(sample_move(new.board, new.playing))
+      new.make_move(sample_move(new.board, new.playing, isMove))
       # Simulate to determine score
       new.play()
       return new.score
 
    def build(self, parSims):
+      isNeeded = True if parSims == -1 else False
       if len(self.next) > 0:
          self.sims = self.sims + 1
          best = self
-         sms = parSims
+         sms = self.sims if parSims == -1 else parSims
          bestPar = True
          for n in self.next:
             if n.get_value(self.sims) >= best.get_value(sms):
@@ -91,17 +94,17 @@ class Data_Node:
                best = n
                sms = self.sims
          if bestPar:
-            return self.simulate_node()
+            return self.simulate_node(isNeeded)
          sc = best.build(self.sims)
          self.score = self.score + sc
-         return sc
+         return -sc
       else:
-         return self.simulate_node()
+         return self.simulate_node(isNeeded)
 
    def expand(self):
       if self.over:
          return True
-      self.build(self.sims)
+      self.build(-1)
       return False # Returns game completion state
    
    def traverse(self):
@@ -120,7 +123,7 @@ class Data_Node:
       val = 0
       for op in self.next:
          new = op.get_value(self.sims)
-         if best == None or new > val or (abs(new - val) < 15 and str(op.move[0])[1] != 0):
+         if best == None or new > val or (abs(new - val) < 15 and str(self.board[best.move[0]])[-1] == 0):
             best = op
             val = new
       return best
@@ -130,7 +133,7 @@ class Data_Node:
       parVal = self.sims if parVal == -1 else parVal
       for _ in range(0, indent, 1):
          ind = ind + '   '
-      print(ind + str(self.get_value(parVal)))
+      print(ind + str(self.move[1]) ,"-->", str(self.get_value(parVal)))
       for t in self.next:
          t.visualize(indent+1, self.sims)
       return True
@@ -145,12 +148,13 @@ class Data_Node:
       return self.move
 
 
-def sample_move(board, player):
+def sample_move(board, player, king):
    pieces = GetPlayerPositions(board, player)
    mvs = []
+   plKing = find_king(board, player) if king else -1
    while len(mvs) < 1:
       pc = pieces[rd.randint(0, len(pieces)-1)]
-      mvs = GetPieceLegalMoves(board, pc)
+      mvs = GetPieceLegalMoves(board, pc, plKing)
    return [pc, mvs[rd.randint(0, len(mvs)-1)]]
 
 def find_king(board, player):
@@ -185,18 +189,20 @@ def IsPositionUnderThreat(board, position, player):
    mvs = []
    for v in range(0, 64, 1):
       if (int(str(board[position])[0]) == opp):
-         mvs += GetPieceLegalMoves(board, v)
+         mvs += GetPieceLegalMoves(board, v, -1)
    if (position in mvs):
       return True
    return False
 
-def GetPieceLegalMoves(board, position):
+def GetPieceLegalMoves(board, position, kingP):
    validMove = [pawn, knight, bishop, rook, queen, king]
    pieceType = int(str(board[position])[-1])
    player = int(str(board[position])[0])
    final = []
    for v in range(0, 64, 1):
       if (validMove[pieceType](position, v, player) and positionIsAvailable(board, player, v) and not getCollisions(board, pieceType, position, v)):
+         if kingP != -1 and IsPositionUnderThreat(board, kingP, player*10):
+            continue
          final += [v]
    return final
 
@@ -221,6 +227,13 @@ def get_path_points(f, i):
       for v in range(1, int(abs(final[0] - initial[0])), 1):
          path = path + [(initial[0] + direction[0]*v) + (initial[1] + direction[1]*v)*8]
    return path
+
+def getPossibleMoves(board, player):
+   fin = []
+   pec = GetPlayerPositions(board, player)
+   for n in pec:
+      fin = fin + GetPieceLegalMoves(board, n, -1)
+   return fin
 
 def positionIsAvailable(board, player, pos):
    if int(str(board[pos])[0]) != player:
@@ -296,6 +309,7 @@ def chessPlayer(board: list, player: int) -> list:
       if state.expand():
          break
    # Selection from state
+   state.visualize()
    status = False
    if state.next != []:
       status = True

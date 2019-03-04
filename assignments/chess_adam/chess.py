@@ -15,8 +15,8 @@ def add_pieces(board):
    row = 0
    for i in range(1, 3, 1):
       # Pawns
-      for v in range(0, 8, 1):
-         final[pawnRow*8+v] = 10*i
+      # for v in range(0, 8, 1):
+      #    final[pawnRow*8+v] = 10*i
       # Knights
       final[8*row+1] = 10*i + 1
       final[8*row+6] = 10*i + 1
