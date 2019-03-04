@@ -205,13 +205,13 @@ def GD(board, player):
 def main():
    v = make_board()
    v = add_pieces(v)
-   player = 1
+   player = 10
    moves = 0
-   print(GetPieceLegalMoves(v, 6))
-   GD(v, player)
    while moves < 20:
       GD(v, player)
+      t = time.time()
       move = chessPlayer(v, player)
+      print(time.time() - t)
       try:
          if not move[0]:
             continue
@@ -222,13 +222,12 @@ def main():
       except:
          print("Move input invalid")
          continue
-      if int(str(v[pos])[0]) != player or not (new in GetPieceLegalMoves(v, pos)):
+      if int(str(v[pos])[0])*10 != player or not (new in GetPieceLegalMoves(v, pos)):
          print("Move input invalid")
          continue
       v[new] = v[pos]
       v[pos] = 0
-      player = 2 if player == 1 else 1
-      GD(v, player)
+      player = 20 if player == 10 else 10
       moves = moves + 1
    return True
 

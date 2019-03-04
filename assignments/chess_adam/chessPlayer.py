@@ -23,8 +23,8 @@ class Queue:
 
 class Data_Node:
 
-   Bias = 5
-   MoveLimit = 7
+   Bias = 2
+   MoveLimit = 30
 
    def __init__(self, board, playing):
       self.next = [] # of Data_Nodes
@@ -41,14 +41,34 @@ class Data_Node:
    def make_move(self, mv):
       self.move = mv
       self.board = move(self.board, mv)
-      self.playing = 2 if self.playing == 1 else 1
+      self.playing = 20 if self.playing == 10 else 10
       return True
 
    def play(self):
       board = list(self.board)
-      for pl in range(self.playing-1, self.MoveLimit+self.playing, 1):
-         board = move(board, sample_move(board, (pl % 2) + 1))
-      return board
+      stps = 0
+      ply = self.playing
+      indMatch = [-1]*10 + [0] + [-1]*10 + [1]
+      king = [find_king(board, 10)]
+      king = king + [find_king(board, 20)]
+      takes = [0, 0]
+      while not check_king(board, king[indMatch[ply]]):
+      # for pl in range(int(self.playing/10)-1, self.MoveLimit+self.playing, 1):
+         mv = sample_move(board, ply)
+         if board[mv[1]] != 0:
+            takes[indMatch[ply]] += 1
+         board = move(board, mv)
+         if mv[0] == king[indMatch[ply]]:
+            king[indMatch[ply]] = mv[1]
+         ply = 20 if ply == 10 else 10
+         stps = stps + 1
+         if stps > 65:
+            ply = 3
+            break
+      self.score = 1 if ply == self.playing else 0
+      other = 10 if self.playing == 20 else 20
+      self.score = self.score*60 + 10*(takes[int(self.playing/10)-1]-takes[int(other/10)-1])
+      return True
 
    def simulate_node(self):
       # Generate new possibility
@@ -56,8 +76,7 @@ class Data_Node:
       self.next = self.next + [new]
       new.make_move(sample_move(new.board, new.playing))
       # Simulate to determine score
-      sim = new.play()
-      new.score = get_score(new.board, sim)
+      new.play()
       return new.score
 
    def build(self, parSims):
@@ -97,14 +116,24 @@ class Data_Node:
       return final
 
    def select_node(self):
-      if len(self.next) < 1:
-         return self
-      else:
-         best = Data_Node([], 1)
-         for n in self.next:
-            if n.get_value(self.sims) >= best.get_value(self.sims):
-               best = n
-         return best.select_node()
+      best = None
+      val = 0
+      for op in self.next:
+         new = op.get_value(self.sims)
+         if best == None or new > val or (abs(new - val) < 15 and str(op.move[0])[1] != 0):
+            best = op
+            val = new
+      return best
+
+   def visualize(self, indent=0, parVal=-1):
+      ind = ''
+      parVal = self.sims if parVal == -1 else parVal
+      for _ in range(0, indent, 1):
+         ind = ind + '   '
+      print(ind + str(self.get_value(parVal)))
+      for t in self.next:
+         t.visualize(indent+1, self.sims)
+      return True
 
    def fetch_candidates(self, player):
       mvs = []
@@ -117,23 +146,31 @@ class Data_Node:
 
 
 def sample_move(board, player):
-   pieces = GetPlayerPositions(board, player*10)
+   pieces = GetPlayerPositions(board, player)
    mvs = []
    while len(mvs) < 1:
       pc = pieces[rd.randint(0, len(pieces)-1)]
       mvs = GetPieceLegalMoves(board, pc)
    return [pc, mvs[rd.randint(0, len(mvs)-1)]]
 
+def find_king(board, player):
+   st = 0 if player == 1 else 63
+   trav = 1 if st == 0 else -1
+   for n in range(st, 64*trav + st, trav):
+      if board[n] == player + 5:
+         return n
+   return -1 
+
+def check_king(board, king):
+   if (IsPositionUnderThreat(board, king, int(str(king)[0])*10)):
+      return True
+   return False
+
 def move(board, move):
    b = list(board)
-   if (b[move[1]] != 0):
-      print("PIECE TAKEN")
    b[move[1]] = b[move[0]]
    b[move[0]] = 0
    return b
-
-def get_score(original, final):
-   return 0
 
 def GetPlayerPositions(board, player):
    s = int(player / 10)
@@ -255,10 +292,9 @@ def king(final, initial, player):
 def chessPlayer(board: list, player: int) -> list:
    state = Data_Node(board, player)
    t = time.time()
-   while time.time() - t < 6:
+   while time.time() - t < 8.5:
       if state.expand():
          break
-      break
    # Selection from state
    status = False
    if state.next != []:
