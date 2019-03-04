@@ -1,6 +1,7 @@
 import math as mh
 import time
 import random as rd
+#from blessings import Terminal
 
 ALPHA = 180
 BETA = 55
@@ -61,6 +62,7 @@ class Data_Node:
       takes = [0, 0]
       while not check_king(board, king[indMatch[ply]]):
          mv = sample_move(board, ply, False)
+         print(mv)
          if len(mv) < 1:
             break
          if board[mv[1]] != 0:
@@ -184,6 +186,8 @@ def sample_move(board, player, isMove):
          mvs = ll[1]
          pc = ll[0]
          break
+      if step > 100:
+         return []
    return [pc, mvs[rd.randint(0, len(mvs)-1)] if len(mvs) > 1 else mvs[0]]
 
 def find_king_safe_moves(board, player, king):
@@ -258,15 +262,15 @@ def GetPieceLegalMoves(board, position, kingP):
             if IsPositionUnderThreat(simBoard, kng):
                continue
          final += [v]
-      elif pieceType == 0 and pawnMove(position, v, player) and str(board[position])[0] == opp:
+      elif pieceType == 0 and pawnMove(position, v, player) and str(board[v])[0] == opp:
          final += [v]
    return final
 
 def pawnMove(initial, final, player):
    diff = final-initial
-   if player == 2 and diff > 6 and diff < 10:
+   if player == 1 and diff > 6 and diff < 10:
       return True
-   if player == 1 and diff > -10 and diff < -6:
+   if player == 2 and diff > -10 and diff < -6:
       return True
    return False
 
@@ -313,7 +317,7 @@ def getCollisions(board, piece, curr, targ):
          return True
    return False
 
-def pawn(final, initial, player): # Don't work
+def pawn(final, initial, player):
    if player == 2 and final-initial == 8:
       return True
    if player == 1 and initial-final == 8:
@@ -462,6 +466,16 @@ def GD(board, player):
    display_board(board)
    return True
 
+def show_board(board, mv):
+   accum="---- BLACK SIDE ----\n"
+   max=63
+   for j in range(0,8,1):
+      for i in range(max-j*8,max-j*8-8,-1):
+         accum=accum+' \033[1;32;40m {0} \033[0m '.format(board[i])
+      accum=accum+"\n"
+   accum=accum+"---- WHITE SIDE ----"
+   return accum
+
 def see_indicies():
    v = [i for i in range(0, 64)]
    l = invert_list(v)
@@ -475,19 +489,21 @@ def see_indicies():
    return True
 
 def main():
+   #t = Terminal()
    # see_indicies()
    # return 
+   #print(t.bold('\033[95mWord \n' + '\x1b[0m'))
    v = make_board()
+   v[0] = 15
+   v[63] = 25
+   v[4] = 10
+   v[5] = 10
+   v[12] = 20
    # v = add_pieces(v)
-   v[4] = 15
-   v[20] = 24
-   v[60] = 25
-   v[0] = 10
-   v[1] = 11
-   v[63] = 21
    player = 10
    moves = 0
    score = [0, 0]
+   move = []
    while moves < 30:
       GD(v, player)
       t = time.time()
