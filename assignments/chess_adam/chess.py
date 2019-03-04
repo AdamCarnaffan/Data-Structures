@@ -1,5 +1,6 @@
 from chessPlayer import chessPlayer
-
+import time
+import random
 
 def make_board():
    board = []
@@ -73,12 +74,12 @@ def display_baord(board):
       print(line)
    return True
 
-def GetPlayerPositions(board: list, player: int) -> list:
+def GetPlayerPositions(board, player):
    s = int(player / 10)
    final = []
    for ind,b in enumerate(board):
-      if b[0] == s:
-         final += ind
+      if int(str(b)[0]) == s:
+         final += [ind]
    return final
 
 def IsPositionUnderThreat(board, position, player):
@@ -145,8 +146,13 @@ def pawn(final, initial, player):
    return False
 
 def knight(final, initial, player):
-   diff = abs(final - initial)
-   if diff in [6, 10, 15, 17]:
+   f = [final % 8, int(final / 8)]
+   i = [initial % 8, int(initial / 8)]
+   diffx = abs(i[0] - f[0])
+   diffy = abs(i[1] - f[1])
+   if diffx == 2 and diffy == 1:
+      return True
+   elif diffx == 1 and diffy == 2:
       return True
    return False
 
@@ -200,14 +206,17 @@ def main():
    v = make_board()
    v = add_pieces(v)
    player = 1
-   move = 0
-   while True:
+   moves = 0
+   print(GetPieceLegalMoves(v, 6))
+   GD(v, player)
+   while moves < 20:
       GD(v, player)
+      move = chessPlayer(v, player)
       try:
-         move = input("Move?\n")
-         vals = move.split(" ")
-         pos = int(vals[0])
-         new = int(vals[1])
+         if not move[0]:
+            continue
+         pos = move[1][0]
+         new = move[1][1]
          if pos == new:
             continue
       except:
@@ -219,6 +228,8 @@ def main():
       v[new] = v[pos]
       v[pos] = 0
       player = 2 if player == 1 else 1
+      GD(v, player)
+      moves = moves + 1
    return True
 
 main()
