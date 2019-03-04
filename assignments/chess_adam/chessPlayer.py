@@ -162,7 +162,7 @@ def find_king(board, player):
    return -1 
 
 def check_king(board, king):
-   if (IsPositionUnderThreat(board, king, int(str(king)[0])*10)):
+   if king < 0 or (IsPositionUnderThreat(board, king, int(str(king)[0])*10)):
       return True
    return False
 
