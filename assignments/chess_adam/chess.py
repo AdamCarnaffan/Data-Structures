@@ -230,7 +230,4 @@ def main():
          v[pos] = 0
          player = 20 if player == 10 else 10
          moves = moves + 1
-   return True
-
-main()
-   
+   return True   

@@ -1,16 +1,13 @@
 import math as mh
 import time
 import random as rd
-from tqdm import tqdm
-import chessConst as chs
 #from blessings import Terminal
 
-ALPHA = 998
-BETA = 123
-GAMMA = 30
-THETA = 54
-LAMBDA = 24
-MODS = [ALPHA, BETA, GAMMA, THETA, LAMBDA]
+ROE = 180
+ZETA = 55
+PHI = 10
+PSY = 25
+IOTA = 8
 
 class Queue:
 
@@ -33,7 +30,7 @@ class Queue:
 
 class Data_Node:
 
-   Bias = THETA
+   Bias = PSY
    MoveLimit = 30
 
    def __init__(self, board, playing):
@@ -81,7 +78,7 @@ class Data_Node:
          self.over = True
       self.score = 1 if ply == self.playing else 0
       other = 10 if self.playing == 20 else 20
-      self.score = self.score*ALPHA + BETA*(takes[int(self.playing/10)-1]) - GAMMA*(takes[int(other/10)-1])
+      self.score = self.score*ROE + ZETA*(takes[int(self.playing/10)-1]) - PHI*(takes[int(other/10)-1])
       return True
 
    def simulate_node(self, isMove):
@@ -114,7 +111,7 @@ class Data_Node:
          if bestPar:
             return -self.simulate_node(isNeeded)
          sc = best.build(self.sims)
-         self.score = self.score + sc/LAMBDA
+         self.score = self.score + sc/IOTA
          return -sc
       else:
          return -self.simulate_node(isNeeded)
@@ -199,8 +196,6 @@ def find_king_safe_moves(board, player, king):
       if len(v) > 0:
          mvs = mvs + [[p, v]]
          break
-   if mvs == []:
-      return []
    return [mvs[0][0], mvs[0][1]]
 
 def moves_take(board, moves):
@@ -491,76 +486,3 @@ def see_indicies():
       st = st + " " + str(l[p])
    print(st)
    return True
-
-def main():
-   #t = Terminal()
-   # see_indicies()
-   # return 
-   #print(t.bold('\033[95mWord \n' + '\x1b[0m'))
-   v = make_board()
-   v = add_pieces(v)
-   player = 10
-   moves = 0
-   score = [0, 0]
-   move = []
-   scrs = []
-   vals = []
-   players = [-1]*10 + [chessPlayer] + [-1]*9 + [chs.chessPlayer]
-   iters = 10
-   pbar = tqdm(total=iters)
-   for _ in range(0, iters):
-      v = make_board()
-      v = add_pieces(v)
-      player = 10
-      moves = 0
-      score = [0, 0]
-      while moves < 15:
-         # GD(v, player)
-         # t = time.time()
-         move = players[player](v, player)
-         #print(time.time() - t)
-         try:
-            if not move[0]:
-               continue
-            pos = move[1][0]
-            new = move[1][1]
-            if pos == new:
-               continue
-         except:
-            #print("Move input invalid")
-            continue
-         if int(str(v[pos])[0])*10 != player or not (new in GetPieceLegalMoves(v, pos, -1)):
-            #print("Move input invalid")
-            continue
-         kng = find_king(v, player)
-         if IsPositionUnderThreat(v, kng):
-            #print("THREAT DETECTED")
-            pass
-         if v[new] != 0:
-            if player == 10:
-               score[0] += 10
-            else:
-               score[1] += 10
-         v[new] = v[pos]
-         v[pos] = 0
-         player = 20 if player == 10 else 10
-         moves = moves + 1
-         #print("SCORE -->", score)
-      finalScore = score[1] - score[0]
-      vals = vals + [list(MODS)]
-      scrs = scrs + [finalScore]
-      for v in range(0, 5, 1):
-         ll = rd.randint(-2, 2)
-         if finalScore > 0:
-            MODS[v] = MODS[v] + MODS[v]*0.04*ll
-         elif finalScore < 0:
-            MODS[v] = MODS[v] + mh.sqrt(MODS[v])*ll
-         else:
-            MODS[v] = MODS[v] + MODS[v]/rd.randint(1, 6)
-         MODS[v] = abs(MODS[v])
-      pbar.update(1)
-   print(vals)
-   print(scrs)
-   return True
-
-main()
