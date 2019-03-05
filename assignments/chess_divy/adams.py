@@ -3,11 +3,11 @@ import time
 import random as rd
 #from blessings import Terminal
 
-ALPHA = 180
-BETA = 55
-GAMMA = 10
-THETA = 25
-LAMBDA = 8
+ALPHA = 998
+BETA = 123
+GAMMA = 30
+THETA = 54
+LAMBDA = 24
 MODS = [ALPHA, BETA, GAMMA, THETA, LAMBDA]
 
 class Queue:
@@ -197,6 +197,8 @@ def find_king_safe_moves(board, player, king):
       if len(v) > 0:
          mvs = mvs + [[p, v]]
          break
+   if mvs == []:
+      return []
    return [mvs[0][0], mvs[0][1]]
 
 def moves_take(board, moves):
@@ -486,53 +488,4 @@ def see_indicies():
          st = ""
       st = st + " " + str(l[p])
    print(st)
-   return True
-
-def main2():
-   #t = Terminal()
-   # see_indicies()
-   # return 
-   #print(t.bold('\033[95mWord \n' + '\x1b[0m'))
-   v = make_board()
-   v[0] = 15
-   v[63] = 25
-   v[4] = 10
-   v[5] = 10
-   v[12] = 20
-   # v = add_pieces(v)
-   player = 10
-   moves = 0
-   score = [0, 0]
-   move = []
-   while moves < 30:
-      GD(v, player)
-      t = time.time()
-      move = chessPlayer(v, player)
-      print(time.time() - t)
-      try:
-         if not move[0]:
-            continue
-         pos = move[1][0]
-         new = move[1][1]
-         if pos == new:
-            continue
-      except:
-         print("Move input invalid")
-         continue
-      if int(str(v[pos])[0])*10 != player or not (new in GetPieceLegalMoves(v, pos, -1)):
-         print("Move input invalid")
-         continue
-      kng = find_king(v, player)
-      if IsPositionUnderThreat(v, kng):
-         print("THREAT DETECTED")
-      if v[new] != 0:
-         if player == 10:
-            score[0] += 10
-         else:
-            score[1] += 10
-      v[new] = v[pos]
-      v[pos] = 0
-      player = 20 if player == 10 else 10
-      moves = moves + 1
-      print("SCORE -->", score)
    return True

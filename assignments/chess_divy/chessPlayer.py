@@ -748,6 +748,8 @@ def chessPlayer(board, player):
    sT = time()  # sT is start_time
    while time() - sT < 8.5:
       node = q_trav.get()
+      if node.depth == 2:
+         break
       node.evalnext(q_trav, eT, s_mm)  # generate next possibilities
    root.minimax(s_mm)
    #print(root.bcm, "root")
