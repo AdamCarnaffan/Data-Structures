@@ -119,60 +119,7 @@ class graph:
             final[r] = [pt]
             while pt != vals[1-r]:
                for v in self.adj[pt]:
-                  if self.connectivity(v[0], vals[1-r]):
+                  if self.connectivity(v[0], vals[1-r])[0]:
                      final[r] = final[r] + [v[0]]
                      pt = v[0]
       return final
-         
-
-
-def test():
-   G = graph()
-   G.addVertex(12)                                    
-   G.addEdge(0, 1, False, 1)
-   G.addEdge(0, 2, True, 1)
-   G.addEdge(0, 3, False, 1)
-   G.addEdge(1, 4, True, 1)
-   G.addEdge(2, 5, False, 1)
-   G.addEdge(3, 6, True, 1)
-   G.addEdge(4, 8, False, 1)
-   G.addEdge(5, 9, False, 1)
-   G.addEdge(6, 10, True, 1)
-   G.addEdge(10, 11, False, 1)
-   print(G.traverse(None, False))
-   G2 = graph()
-   G2.addVertex(6)
-   G2.addEdge(0, 1, True, 7)
-   G2.addEdge(0, 2, True, 9)
-   G2.addEdge(0, 5, True, 14)
-   G2.addEdge(1, 3, True, 15)
-   G2.addEdge(1, 2, True, 10)
-   G2.addEdge(2, 3, True, 11)
-   G2.addEdge(2, 5, True, 2)
-   G2.addEdge(5, 4, True, 9)
-   G2.addEdge(3, 4, True, 6)
-   print(G2.traverse(None, False))
-   print(G2.path(0, 4))
-   print("\n------------\n")
-   x=graph()
-   x.addVertex(1)
-   x.addVertex(1)
-   x.addVertex(1)
-   x.addVertex(1)
-   x.addVertex(1)
-   x.addEdge(0,1,False,1)
-   x.addEdge(0,2,False,1)
-   x.addEdge(0,3,False,1)
-   x.addEdge(1,2,False,2)
-   x.addEdge(1,4,False,2)
-   # x.addEdge(2,3,True,3)
-   x.addEdge(3,4,True,4)
-   x.addEdge(4,5,True,5)
-   print(x.traverse(0,False))
-   # print("Breadth")
-   print(x.traverse(0,True))
-   # print("Breadth; start=None")
-   print(x.traverse(None,True))
-   return True
-
-test()
