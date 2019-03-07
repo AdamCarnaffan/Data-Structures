@@ -886,29 +886,28 @@ def chessplayer(board,player):
    for i in range(0,len(L),1):
       test1 = move(board,L[i][0][0],L[i][0][1])
       L[i] = [L[i]] + analyze(test1,enemy)
+      accum = accum + [L[i][0]]
       for j in range(1,len(L[i]),1):
          test2 = move(test1,L[i][j][0][0],L[i][j][0][1])
          L[i][j] = [L[i][j]] + analyze(test2,friendly)
-         for y in range(2,len(L[i][j]),1):
+         for y in range(1,len(L[i][j]),1):
             val2 = L[i][1][1][1]*factor
             if L[i][j][y][1]*factor > val2:
                val2 = L[i][j][y][1]*factor
-            L[i][j][0][1] = val2*factor
+            accum = accum + [L[i][j][y]]
+         L[i][j][0][1] = val2*factor
       for z in range(1,len(L[i]),1):
-         val3 = L[i][1][1][1]
-         if L[i][z][0][1] > val3:
-            val3 = L[i][z][1]
-         if type(val3) == list:
-            val3 = val3[1]
-         L[i][0][1] = val3
-   #print(L[10])
+         val3 = L[i][1][1][1]*factor
+         if L[i][z][0][1]*factor < val3:
+            val3 = L[i][z][0][1]*factor
+      if type(val3) == list:
+         val3 = val3[1]
+      L[i][0][1] = val3*factor
    #check the best move using the top tier values
    moves = L[0][0][0]
    cnt = L[0][0][1]*factor
-   print(cnt)
    for i in range(1,len(L),1):
       if L[i][0][1]*factor > cnt:
          moves = L[i][0][0]
          cnt = L[i][0][1]*factor
-   #print(moves)
-   return moves
+   return [True, moves, analyze(board,player), accum]
