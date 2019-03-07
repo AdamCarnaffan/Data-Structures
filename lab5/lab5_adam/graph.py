@@ -13,6 +13,9 @@ class Queue:
       self.vals = self.vals[1:len(self.vals)]
       return [True, val]
 
+   def length(self):
+      return len(self.vals)
+
 class graph:
 
    def __init__(self):
@@ -70,28 +73,55 @@ class graph:
                   break
          else:
             dp = self.doDepth(root)
-         return dp
-      disc = Queue()
-      
-      return
+      else:
+         while (root != -1):
+            bld = []
+            disc = Queue()
+            disc.enqueue([root, self.adj[root]])
+            self.explored = self.explored + [root]
+            while disc.length() > 0:
+               curr = disc.dequeue()[1]
+               bld = bld + [curr[0]]
+               for v in curr[1]:
+                  fnd = False
+                  for i in self.explored:
+                     if i == v[0]:
+                        fnd = True
+                        break
+                  if not fnd:
+                     disc.enqueue([v[0], self.adj[v[0]]])
+                     self.explored = self.explored + [v[0]]
+            if start != None:
+               root = -1
+               dp = bld
+            else:
+               root = self.get_first_non_explored()
+               dp = dp + [bld]
+      return dp
 
    def connectivity(self, vx, vy):
       pts = [vx, vy]
-      opp = 1
       final = [False]*2
       for v in range(0, 2, 1):
          pathFromP = self.traverse(pts[v], False)
          for i in pathFromP:
-            if i == pts[opp-v]:
+            if i == pts[1-v]:
                final[v] = True
       return final
 
    def path(self, vx, vy):
       conn = self.connectivity(vx, vy)
       final = [[]]*2
+      vals = [vx, vy]
       for r in range(0, 2, 1):
+         pt = vals[r]
          if conn[r]:
-
+            final[r] = [pt]
+            while pt != vals[1-r]:
+               for v in self.adj[pt]:
+                  if self.connectivity(v[0], vals[1-r]):
+                     final[r] = final[r] + [v[0]]
+                     pt = v[0]
       return final
          
 
@@ -122,6 +152,7 @@ def test():
    G2.addEdge(5, 4, True, 9)
    G2.addEdge(3, 4, True, 6)
    print(G2.traverse(None, False))
+   print(G2.path(0, 4))
    print("\n------------\n")
    x=graph()
    x.addVertex(1)
@@ -134,14 +165,14 @@ def test():
    x.addEdge(0,3,False,1)
    x.addEdge(1,2,False,2)
    x.addEdge(1,4,False,2)
-   x.addEdge(2,3,True,3)
+   # x.addEdge(2,3,True,3)
    x.addEdge(3,4,True,4)
    x.addEdge(4,5,True,5)
    print(x.traverse(0,False))
    # print("Breadth")
-   # print(x.traverse(0,True))
+   print(x.traverse(0,True))
    # print("Breadth; start=None")
-   # print(x.traverse(None,True))
+   print(x.traverse(None,True))
    return True
 
 test()
