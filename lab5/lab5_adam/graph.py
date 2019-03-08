@@ -119,7 +119,51 @@ class graph:
             final[r] = [pt]
             while pt != vals[1-r]:
                for v in self.adj[pt]:
+                  if v[0] in final[r]:
+                     print("asd")
+                     continue
                   if self.connectivity(v[0], vals[1-r])[0]:
                      final[r] = final[r] + [v[0]]
                      pt = v[0]
+                     print(pt)
+                     break
       return final
+
+def test():
+   g2 = graph()
+   g2.addVertex(10)
+   g2.addEdge(0, 1, True, 2)
+   g2.addEdge(0, 2, True, 3)
+   g2.addEdge(1, 3, True, 2)
+   g2.addEdge(2, 3, True, 2)
+   g2.addEdge(3, 4, False, 2)
+   g2.addEdge(4, 5, True, 2)
+   g2.addEdge(4, 6, False, 3)
+   g2.addEdge(6, 8, True, 3)
+   g2.addEdge(6, 7, True, 5)
+   g2.addEdge(7, 9, True, 4)
+   g2.addEdge(8, 9, True, 5)
+   g2.addEdge(7, 8, False, 1)
+   g2.addEdge(9, 6, True, 1)
+   g2.addEdge(9, 0, True, 2)
+   print("FORE GRAPH 2:")
+   print("PATH FROM 0 -> 9 AND 9 -> 0:")
+   print(g2.path(0, 9))
+   print("ANSWER: [[0, 1, 3, 4, 6, 8, 9], [9, 0]] ")
+   print("-------")
+   print("Traversal by BREADTH from 0:")
+   print(g2.traverse(0, True))
+   print("ANSWER: [0, 2, 3, 4, 6, 7, 9, 8, 5, 1] ")
+   print("-------")
+   print("Traversal by DEPTH from 0")
+   print(g2.traverse(0, False))
+   print("ANSWER: [0, 2, 3, 4, 6, 7, 9, 8, 5, 1] ")
+   print("-------")
+   print("None by Breadth:")
+   print(g2.traverse(None, True))
+   print("None by Depth:")
+   print(g2.traverse(None, False))
+   print("None Breadth and Depth should both appear the \nsame as starting at 0 except list inside of a list.")
+   return
+
+test()
