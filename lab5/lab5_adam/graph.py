@@ -109,6 +109,24 @@ class graph:
                final[v] = True
       return final
 
+   def sim_path(self, vx, vy):
+      if vx == vy:
+         return True
+      orig = list(self.explored)
+      self.explored = self.explored + [vx]
+      res = False
+      for v in self.adj[vx]:
+         if v[0] == vy:
+            res = True
+            break
+         elif v[0] in self.explored:
+            continue
+         elif (self.sim_path(v[0], vy)):
+            res = True
+            break
+      self.explored = orig
+      return res
+
    def path(self, vx, vy):
       conn = self.connectivity(vx, vy)
       final = [[]]*2
@@ -116,20 +134,20 @@ class graph:
       for r in range(0, 2, 1):
          pt = vals[r]
          if conn[r]:
+            self.explored = [pt]
             final[r] = [pt]
             while pt != vals[1-r]:
                for v in self.adj[pt]:
-                  if v[0] in final[r]:
-                     print("asd")
+                  if v[0] in self.explored:
                      continue
-                  if self.connectivity(v[0], vals[1-r])[0]:
-                     final[r] = final[r] + [v[0]]
+                  if self.sim_path(v[0], vals[1-r]):
+                     self.explored = self.explored + [pt]
                      pt = v[0]
-                     print(pt)
+                     final[r] = final[r] + [pt]
                      break
       return final
 
-def test():
+def main():
    g2 = graph()
    g2.addVertex(10)
    g2.addEdge(0, 1, True, 2)
@@ -164,6 +182,11 @@ def test():
    print("None by Depth:")
    print(g2.traverse(None, False))
    print("None Breadth and Depth should both appear the \nsame as starting at 0 except list inside of a list.")
+<<<<<<< HEAD
    return
 
 test()
+=======
+
+main()
+>>>>>>> 671a3ebf2963b4818347d796f1cc78ed215451fc
