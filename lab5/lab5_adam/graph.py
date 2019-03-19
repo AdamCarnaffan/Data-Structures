@@ -182,11 +182,6 @@ def main():
    print("None by Depth:")
    print(g2.traverse(None, False))
    print("None Breadth and Depth should both appear the \nsame as starting at 0 except list inside of a list.")
-<<<<<<< HEAD
    return
 
-test()
-=======
-
 main()
->>>>>>> 671a3ebf2963b4818347d796f1cc78ed215451fc
