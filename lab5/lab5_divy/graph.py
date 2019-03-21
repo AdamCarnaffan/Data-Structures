@@ -44,7 +44,7 @@ class graph:
    def addVertex(self, n): 
       if n <= 0:
          return -1
-      for i in range(0, n, 1):  # add n new index slots
+      for i in range(0, n, 1):
          self.store += [[]]
       return len(self.store)
     
@@ -89,7 +89,7 @@ class graph:
             node = adt.take()
             if P[node] == True:  # node has already been processed
                continue
-            if start == None:  # lists of lists if None, lese just a singlular list
+            if start == None:  # lists of lists if None, else just a singlular list
                T[Tcnt] += [node]
             else:
                T += [node]
@@ -112,10 +112,10 @@ class graph:
    def path(self, v1, v2):  
       Element = [[], []]  # worst case return if no paths exist
       Element[0] = self.helper_path(v1, v2)  # check if v1 -> v2 is a path
-      Element[1] = self.helper_path(v2, v1)  # check if there is a which path goes other way as well
+      Element[1] = self.helper_path(v2, v1)  # check if there is a path which goes other way as well
       return Element
 
-   def helper_path(self, v1, v2):  # I modified Dijkstra's Algorithm to find (ideally a short) path
+   def helper_path(self, v1, v2):  # implemented a modified version of Dijkstra's Algorithm to find (ideally a short) path
       if min(v1, v2) < 0 or max(v1, v2) > len(self.store) - 1:
          return []
       values, visited, path_found = [], [], False
@@ -157,7 +157,8 @@ def test():
    g1.addEdge(2, 5, False, 2)
    g1.addEdge(3, 4, False, 6)
    g1.addEdge(5, 4, False, 9)
-   print("FOOR GRAPH 1:")
+   print(g1.store)
+   print("FOR GRAPH 1:")
    print("PATH FROM 0 - > 4 AND 4 -> 0")
    print(g1.path(0, 4))
    print("AN ANSWER: [[0, 2, 5, 4], [4, 5, 2, 0]] ")
@@ -185,7 +186,7 @@ def test():
    print("-------")
    print("Traversal by BREADTH from 0:")
    print(g2.traverse(0, True))
-   print("ANSWER: [0, 2, 3, 4, 6, 7, 9, 8, 5, 1] ")
+   print("ANSWER: [0, 1, 2, 3, 4, 5, 6, 8, 7, 9] ")
    print("-------")
    print("Traversal by DEPTH from 0")
    print(g2.traverse(0, False))
