@@ -100,6 +100,33 @@ def helper_get_parent(ind):
    else:
       return int((ind-1)/2)
 
+def dumb_sort(u):
+   m = []
+   last = None
+   for i in range(0, len(u), 1):
+      poss = None
+      trackCnt = 0
+      for v in range(0, len(u), 1):
+         if (poss == None or u[v] < poss):
+            if len(m) == 0:
+               poss = u[v]
+            elif u[v] > m[i-1]:
+               poss = u[v]
+            elif u[v] == m[i-1]:
+               trackCnt = trackCnt + 1
+               if trackCnt == lastCnt + 1:
+                  poss = u[v]
+      m = m + [poss] 
+      if last == poss:
+         lastCnt = lastCnt + 1
+      else:
+         lastCnt = 1
+      last = poss
+   # Set
+   for i in range(0, len(u), 1):
+      u[i] = m[i]
+   return
+
 def main():
    v1 = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
    v2 = [100, 1, 1000, 9, 8, 7, 2, 2000, 10]
@@ -121,6 +148,12 @@ def main():
    for i in [v1, v2, v3]:
       x = list(i)
       heap_sort(x)
+      print(x)
+   
+   print("\nDUMB_SORT:")
+   for i in [v1, v2, v3]:
+      x = list(i)
+      dumb_sort(x)
       print(x)
    
    # print("\nQUICK_SORT:")
