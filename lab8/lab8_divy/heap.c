@@ -14,14 +14,14 @@ int store(intHeap_T* heap, int value);
 int retrieve(intHeap_T* heap, int *rvalue);
 
 int lt(int x, int y) {
-   if (x > y) {
+   if (x < y) {
       return 1;
    }
    return 0;
 }
 
 int gt(int x, int y) {
-   if (x < y) {
+   if (x > y) {
       return 1;
    }
    return 0;
@@ -36,7 +36,7 @@ int store(intHeap_T *heap, int value) {
    heap->end += 1;
    while (n > 0) {
       parent = (n - 1)/2;
-      if (heap->compare((heap->store)[n], (heap->store)[parent]) == 1) {
+      if (heap->compare((heap->store)[parent], (heap->store)[n]) == 1) {
          swapper = (heap->store)[n];
          (heap->store)[n] = (heap->store)[parent];
          (heap->store)[parent] = swapper;
@@ -62,8 +62,8 @@ int retrieve(intHeap_T* heap, int *rvalue) {
       swap = parent;
       child = 2*parent + 1;
       if (child >= heap->end) { break; }
-      else if (heap->compare((heap->store)[parent], (heap->store)[child]) == 0) { swap = child; }
-      if ((child + 1< heap->end) && (heap->compare((heap->store)[swap], (heap->store)[child + 1]) == 0)) { swap = child + 1; }
+      else if (heap->compare((heap->store)[parent], (heap->store)[child]) == 1) { swap = child; }
+      if ((child + 1 < heap->end) && (heap->compare((heap->store)[swap], (heap->store)[child + 1]) == 1)) { swap = child + 1; }
       if (swap == parent) { break; }
       else {
          child = (heap->store)[swap];
@@ -72,30 +72,5 @@ int retrieve(intHeap_T* heap, int *rvalue) {
          parent = swap;
       }
    }
-   return 0;
-}
-
-int main(void) {
-   intHeap_T *heap;
-   heap->store = (int *)malloc(sizeof(int) * 1000);
-   heap->size = 1000;
-   heap->end = 0;
-   heap->compare = lt;
-   int i = 0, rvalue = 0;
-   for (i = 0; i < 15; i++) {
-      store(heap, i);
-   }
-   for (i = 0; i < heap->end; i++) {
-      printf("store[%d] = %d\n", i, (heap->store)[i]);
-   }
-   printf("\n");
-   for (i = 0; i < 5; i++) {
-      retrieve(heap, &rvalue);
-      printf("rvalue: %d\n", rvalue);
-   }
-   printf("\n");
-   for (i = 0; i < heap->end; i++) {
-      printf("store[%d] = %d\n", i, (heap->store)[i]);
-   }   
    return 0;
 }

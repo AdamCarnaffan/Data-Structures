@@ -7,14 +7,14 @@ int bs(int *array, int array_size, int (*compare)(int x, int y));
 
 
 int lt(int x, int y) {
-   if (x > y) {
+   if (x < y) {
       return 1;
    }
    return 0;
 }
 
 int gt(int x, int y) {
-   if (x < y) {
+   if (x > y) {
       return 1;
    }
    return 0;
@@ -38,24 +38,6 @@ int bs(int *array, int array_size, int (*compare)(int x, int y)) {
       if (swapped_flag == 0) {
          break;
       }
-   }
-   return 0;
-}
-
-
-int main(void) {
-   int i = 0;
-   int vals[10];
-   for (i = 0; i < 10; i++) {
-      vals[i] = 100 - i;
-   }
-   printf("\n"); bs(vals, 10, lt);
-   for (i = 0; i < 10; i++) {
-      printf("in[%d] = %d\n", i, vals[i]);
-   }
-   printf("\n"); bs(vals, 10, gt);
-   for (i = 0; i < 10; i++) {
-      printf("out[%d] = %d\n", i, vals[i]);
    }
    return 0;
 }

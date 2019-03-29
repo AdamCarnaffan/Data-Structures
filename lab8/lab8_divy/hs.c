@@ -15,14 +15,14 @@ int retrieve(intHeap_T* heap, int *rvalue);
 int hs(int *x,int size,int (*compare)(int x,int y));
 
 int lt(int x, int y) {
-   if (x > y) {
+   if (x < y) {
       return 1;
    }
    return 0;
 }
 
 int gt(int x, int y) {
-   if (x < y) {
+   if (x > y) {
       return 1;
    }
    return 0;
@@ -37,7 +37,7 @@ int store(intHeap_T *heap, int value) {
    heap->end += 1;
    while (n > 0) {
       parent = (n - 1)/2;
-      if (heap->compare((heap->store)[n], (heap->store)[parent]) == 1) {
+      if (heap->compare((heap->store)[parent], (heap->store)[n]) == 1) {
          swapper = (heap->store)[n];
          (heap->store)[n] = (heap->store)[parent];
          (heap->store)[parent] = swapper;
@@ -63,8 +63,8 @@ int retrieve(intHeap_T* heap, int *rvalue) {
       swap = parent;
       child = 2*parent + 1;
       if (child >= heap->end) { break; }
-      else if (heap->compare((heap->store)[parent], (heap->store)[child]) == 0) { swap = child; }
-      if ((child + 1< heap->end) && (heap->compare((heap->store)[swap], (heap->store)[child + 1]) == 0)) { swap = child + 1; }
+      else if (heap->compare((heap->store)[parent], (heap->store)[child]) == 1) { swap = child; }
+      if ((child + 1 < heap->end) && (heap->compare((heap->store)[swap], (heap->store)[child + 1]) == 1)) { swap = child + 1; }
       if (swap == parent) { break; }
       else {
          child = (heap->store)[swap];
@@ -96,11 +96,3 @@ int hs(int *array, int array_size, int (*compare)(int x, int y)) {
    return 0;
 }
 
-int main(void) {
-   int array[15] = {1, 4, 6, 8, 3, 12, 9, 0, 2, 3, 6, 23, 7, 13, 11};
-   hs(array, 15, lt);
-   for (int i = 0; i < 15; i++) {
-      printf("output[%d] = %d\n", i, array[i]);
-   }
-   return 0;
-}
