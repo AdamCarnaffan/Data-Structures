@@ -120,35 +120,3 @@ def helper_swap_indices(u, index_a, index_b):  # swap u[index_a] and u[index_b]
    u[index_a] = u[index_b]
    u[index_b] = swap
    return True
-
-def main():
-   v1 = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-   v2 = [100, 1, 1000, 9, 8, 7, 2, 2000, 10]
-   v3 = [100, 10, 1000, 9, 8, 7, 2, 6, 5, 2, 3, 1]
-
-   print("SELECTION_SORT:")
-   for i in [v1, v2, v3]:
-      x = list(i)
-      selection_sort(x)
-      print(x)
-   
-   print("\nMERGE_SORT:")
-   for i in [v1, v2, v3]:
-      x = list(i)
-      merge_sort(x)
-      print(x)
-
-   print("\nHEAP_SORT:")
-   for i in [v1, v2, v3]:
-      x = list(i)
-      heap_sort(x)
-      print(x)
-   
-   print("\nQUICK_SORT:")
-   for i in [v1, v2, v3]:
-      x = list(i)
-      quick_sort(x, 0, len(x) - 1)
-      print(x)
-   return True
-
-main()

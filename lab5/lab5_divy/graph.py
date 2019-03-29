@@ -118,7 +118,7 @@ class graph:
    def helper_path(self, v1, v2):  # implemented a modified version of Dijkstra's Algorithm to find (ideally a short) path
       if min(v1, v2) < 0 or max(v1, v2) > len(self.store) - 1:
          return []
-      values, visited, path_found = [], [], False
+      values, visited = [], []
       q = Queue()
       q.add(v1)
       for i in range(0, len(self.store), 1):
@@ -157,7 +157,6 @@ def test():
    g1.addEdge(2, 5, False, 2)
    g1.addEdge(3, 4, False, 6)
    g1.addEdge(5, 4, False, 9)
-   print(g1.store)
    print("FOR GRAPH 1:")
    print("PATH FROM 0 - > 4 AND 4 -> 0")
    print(g1.path(0, 4))
@@ -179,7 +178,7 @@ def test():
    g2.addEdge(7, 8, False, 1)
    g2.addEdge(9, 6, True, 1)
    g2.addEdge(9, 0, True, 2)
-   print("FORE GRAPH 2:")
+   print("FOR GRAPH 2:")
    print("PATH FROM 0 -> 9 AND 9 -> 0:")
    print(g2.path(0, 9))
    print("ANSWER: [[0, 1, 3, 4, 6, 8, 9], [9, 0]] ")
