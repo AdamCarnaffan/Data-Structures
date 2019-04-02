@@ -47,10 +47,10 @@ def boundary(u, v, nozzle_u, nozzle_v, nx, ny, t_step):
 
    return (u, v)
 
-def evolve(u, v, dx, dy, nx, ny, NU, dt, noz_x, noz_y, steps):
+def evolve(u, v, dx, dy, nx, ny, NU, dt, noz_x, noz_y, passes, steps):
    for i in range(steps):
       (u, v) = equation_of_motion(u, v, dx, dy, NU, dt)
-      (u, v) = boundary(u, v, noz_x, noz_y, nx, ny, i)
+      (u, v) = boundary(u, v, noz_x, noz_y, nx, ny, i+passes)
    return (u, v)
 
 def main():
@@ -76,7 +76,7 @@ def main():
    nozzle_v = np.append(10*np.ones(1000), np.zeros(nt))
    
    for i in range(0, nt, 50):
-      (u, v) = evolve(u, v, dx, dy, nx, ny, NU, dt, nozzle_u, nozzle_v, 50)
+      (u, v) = evolve(u, v, dx, dy, nx, ny, NU, dt, nozzle_u, nozzle_v, i, 50)
       ax = pyplot.figure()
       norm = Normalize()
       magnitude = np.sqrt(u[::2]**2 + v[::2]**2)
