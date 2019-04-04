@@ -45,9 +45,3 @@ def sortr(L):
       for i in posB[v]:
          final = final + [int(str(v) + str(i))]
    return final
-
-def main():
-   print(4 % 3)
-   return
-
-main()

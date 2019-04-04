@@ -13,31 +13,6 @@ int lt(int x, int y);
 int store(intHeap_T *heap, int value);
 int retrieve(intHeap_T *heap, int *rvalue);
 
-int main(void) {
-   intHeap_T *heap = (intHeap_T *)malloc(sizeof(intHeap_T));
-   heap->size = 1000;
-   heap->store = (int *)malloc(sizeof(int) * heap->size);
-   heap->end = 0;
-   heap->compare = gt;
-   int i = 0, rvalue = 0;
-   for (i = 0; i < 15; i++) {
-      store(heap, i);
-   }
-   for (i = 0; i < heap->end; i++) {
-      printf("store[%d] = %d\n", i, (heap->store)[i]);
-   }
-   printf("\n");
-   for (i = 0; i < 5; i++) {
-      retrieve(heap, &rvalue);
-      printf("rvalue: %d\n", rvalue);
-   }
-   printf("\n");
-   for (i = 0; i < heap->end; i++) {
-      printf("store[%d] = %d\n", i, (heap->store)[i]);
-   }   
-   return 0;
-}
-
 int store(intHeap_T *heap, int value) {
    int ind = heap->end + 1;
    int par = 0;

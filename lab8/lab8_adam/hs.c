@@ -14,18 +14,22 @@ int hs(int *x, int size, int (*compare)(int x, int y));
 int store(intHeap_T *heap, int value);
 int retrieve(intHeap_T *heap, int *rvalue);
 
-int main(void) {
-   int array[15] = {1, 4, 6, 8, 3, 12, 9, 0, 2, 3, 6, 23, 7, 13, 11};
-   hs(array, 15, lt);
-   for (int i = 0; i < 15; i++) {
-      printf("output[%d] = %d\n", i, array[i]);
-   }
-   return 0;
-}
-
 int hs(int *x, int size, int (*compare)(int x, int y)) {
-   intHeap_T *heap = (intHeap_T *)malloc(sizeof(intHeap_T)*size);
-   // Do the sort
+   intHeap_T *heap = (intHeap_T *)malloc(sizeof(intHeap_T));
+   int i = 0;
+   if (size == 0 || x == NULL || compare == NULL) {
+      return -1;
+   }
+   heap->size = size;
+   heap->store = (int *)malloc(sizeof(int)*size);
+   heap->end = 0;
+   heap->compare = compare;
+   for (; i<size; i++) {
+      store(heap, x[i]);
+   }
+   for (i=0; i<size; i++) {
+      retrieve(heap, &(x[i]));
+   }
    return 0;
 }
 
