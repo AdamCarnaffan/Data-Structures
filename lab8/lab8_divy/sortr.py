@@ -16,7 +16,7 @@ def sortr(array):
    n0 = len(pos_neg[0])
    for i in range(0, n0, 1):
       array[n1 + i] = pos_neg[0][i]
-   return True
+   return array
 
 def helper_sortr(array, largest_digit, tens):
    if largest_digit <= 0:
@@ -41,9 +41,7 @@ def main():
    print("Unsorted Array:", end = " ")
    print(array)
    print("length:", len(array))
-   sortr(array)
-   print("\nAfter Sort: ")
-   print(array)
+   print(sortr(array))
    return True
 
 main()
