@@ -73,14 +73,6 @@ def merge_sort(u):
       part = part * 2
    return True
 
-def quick_sort(u, ini, fin):
-
-   return True
-
-def partition(u, ini, fin):
-   pIndex = []
-   return pIndex
-
 def helper_shift(u, pos):
    if pos > len(u)-1 or len(u) < 2 or pos == 0:
       return False
